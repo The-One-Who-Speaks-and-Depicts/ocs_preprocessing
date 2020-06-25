@@ -47,6 +47,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CodexMarianusParsing.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="CodexMarianusParsing.Designer.cs">
+      <DependentUpon>CodexMarianusParsing.cs</DependentUpon>
+    </Compile>
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>

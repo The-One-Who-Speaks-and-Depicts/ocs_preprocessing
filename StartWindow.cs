@@ -21,5 +21,10 @@ namespace OldSlavonicCorpusPreprocessing
         {
             new Form1().ShowDialog(this);
         }
+
+        private void Button2_Click(object sender, EventArgs e)
+        {
+            new CodexMarianusParsing().ShowDialog(this);
+        }
     }
 }
