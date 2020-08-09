@@ -15,6 +15,13 @@ namespace OldSlavonicCorpusPreprocessing
 {
     public partial class CodexMarianusParsing : Form
     {
+        public enum Gospels
+        {
+            Natthew = 0,
+            Mark = 1,
+            Luke = 2,
+            John = 3
+        }
         public CodexMarianusParsing()
         {
             InitializeComponent();
@@ -22,7 +29,6 @@ namespace OldSlavonicCorpusPreprocessing
 
         private void Button1_Click(object sender, EventArgs e)
         {
-            richTextBox1.Text = "";
             var choice = openFileDialog1.ShowDialog();
             if (choice == DialogResult.OK)
             {
@@ -41,7 +47,12 @@ namespace OldSlavonicCorpusPreprocessing
             {
                 Document codexMarianus = new Document();
                 string folderPath = folderBrowserDialog1.SelectedPath;
+                codexMarianus.documentID = new DirectoryInfo(folderPath).GetFiles().Length.ToString();
                 var units = Regex.Split(richTextBox1.Text, "\n\n");
+                foreach (var unit in units)
+                {
+                    var strings = unit.Split('\n');
+                }
             }
         }
     }
