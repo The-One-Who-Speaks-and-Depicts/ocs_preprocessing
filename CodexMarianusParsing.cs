@@ -6,8 +6,10 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using CorpusDraftCSharp;
 
 namespace OldSlavonicCorpusPreprocessing
 {
@@ -29,6 +31,17 @@ namespace OldSlavonicCorpusPreprocessing
                 {
                     richTextBox1.Text += r.ReadToEnd();
                 }
+            }
+        }
+
+        private void Button2_Click(object sender, EventArgs e)
+        {
+            var choice = folderBrowserDialog1.ShowDialog();
+            if (choice == DialogResult.OK)
+            {
+                Document codexMarianus = new Document();
+                string folderPath = folderBrowserDialog1.SelectedPath;
+                var units = Regex.Split(richTextBox1.Text, "\n\n");
             }
         }
     }

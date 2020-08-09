@@ -34,8 +34,8 @@
             this.richTextBox1 = new System.Windows.Forms.RichTextBox();
             this.button2 = new System.Windows.Forms.Button();
             this.button3 = new System.Windows.Forms.Button();
-            this.openFileDialog2 = new System.Windows.Forms.OpenFileDialog();
             this.label1 = new System.Windows.Forms.Label();
+            this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
             this.SuspendLayout();
             // 
             // button1
@@ -75,6 +75,7 @@
             this.button2.TabIndex = 3;
             this.button2.Text = "Поместить в БД";
             this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.Button2_Click);
             // 
             // button3
             // 
@@ -84,10 +85,6 @@
             this.button3.TabIndex = 4;
             this.button3.Text = "Провести частеречную разметку";
             this.button3.UseVisualStyleBackColor = true;
-            // 
-            // openFileDialog2
-            // 
-            this.openFileDialog2.FileName = "openFileDialog2";
             // 
             // label1
             // 
@@ -124,7 +121,7 @@
         private System.Windows.Forms.RichTextBox richTextBox1;
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.Button button3;
-        private System.Windows.Forms.OpenFileDialog openFileDialog2;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
     }
 }
