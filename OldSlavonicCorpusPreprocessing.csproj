@@ -98,6 +98,9 @@
       <DependentUpon>StartWindow.cs</DependentUpon>
     </Compile>
     <Compile Include="Text.cs" />
+    <EmbeddedResource Include="CodexMarianusParsing.resx">
+      <DependentUpon>CodexMarianusParsing.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>

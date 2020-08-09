@@ -14,3 +14,4 @@ C:\Users\user\source\repos\OldSlavonicCorpusPreprocessing\OldSlavonicCorpusPrepr
 C:\Users\user\source\repos\OldSlavonicCorpusPreprocessing\OldSlavonicCorpusPreprocessing\obj\Debug\OldSlavonicCorpusPreprocessing.Form5.resources
 C:\Users\user\source\repos\OldSlavonicCorpusPreprocessing\OldSlavonicCorpusPreprocessing\obj\Debug\OldSlavonicCorpusPreprocessing.Form6.resources
 C:\Users\user\source\repos\OldSlavonicCorpusPreprocessing\OldSlavonicCorpusPreprocessing\obj\Debug\OldSlavonicCorpusPreprocessing.StartWindow.resources
+C:\Users\user\source\repos\OldSlavonicCorpusPreprocessing\OldSlavonicCorpusPreprocessing\obj\Debug\OldSlavonicCorpusPreprocessing.CodexMarianusParsing.resources
