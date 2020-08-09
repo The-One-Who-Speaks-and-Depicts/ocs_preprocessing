@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System; 
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -17,7 +17,7 @@ namespace OldSlavonicCorpusPreprocessing
     {
         public enum Gospels
         {
-            Natthew = 0,
+            Matthew = 0,
             Mark = 1,
             Luke = 2,
             John = 3
@@ -45,13 +45,58 @@ namespace OldSlavonicCorpusPreprocessing
             var choice = folderBrowserDialog1.ShowDialog();
             if (choice == DialogResult.OK)
             {
-                Document codexMarianus = new Document();
                 string folderPath = folderBrowserDialog1.SelectedPath;
-                codexMarianus.documentID = new DirectoryInfo(folderPath).GetFiles().Length.ToString();
+                Document codexMarianus = new Document(new DirectoryInfo(folderPath).GetFiles().Length.ToString(), "Codex Marianus",
+                    new DirectoryInfo(folderPath).GetFiles().Length.ToString() + "_" + "Codex Marianus", "_");
                 var units = Regex.Split(richTextBox1.Text, "\n\n");
+                progressBar1.Value = 0;
+                progressBar1.Step = 1;
+                progressBar1.Maximum = units.Length;
                 foreach (var unit in units)
                 {
+                    Text currentText = new Text();
                     var strings = unit.Split('\n');
+                    var textNameString = strings.Where((s) => s.Contains("source")).FirstOrDefault();
+                    var textName = Regex.Split(textNameString, ", ")[1];
+                    var textIDAndName = textName.Split(' ');
+                    int preliminaryID = 0;
+                    if (textIDAndName[0] == "Matthew")
+                    {
+                        preliminaryID = Convert.ToInt32(Gospels.Matthew + textIDAndName[1]);
+                    }
+                    else if (textIDAndName[0] == "Mark")
+                    {
+                        preliminaryID = Convert.ToInt32(Gospels.Mark + textIDAndName[1]);
+                    }
+                    else if (textIDAndName[0] == "Luke")
+                    {
+                        preliminaryID = Convert.ToInt32(Gospels.Luke + textIDAndName[1]);
+                    }
+                    else if (textIDAndName[0] == "John")
+                    {
+                        preliminaryID = Convert.ToInt32(Gospels.John + textIDAndName[1]);
+                    }
+                    if (codexMarianus.texts != null)
+                    {
+                        if (codexMarianus.texts.Where((text) => text.textID == preliminaryID.ToString()).ToList().Count != 0)
+                        {
+                            currentText = codexMarianus.texts.Where((text) => text.textID == preliminaryID.ToString()).FirstOrDefault();
+                        }
+                        else
+                        {
+                            currentText = new Text(codexMarianus, preliminaryID.ToString(), textName);
+                        }
+                    }
+                    else
+                    {
+                        currentText = new Text(codexMarianus, preliminaryID.ToString(), textName);
+                    }
+                    var clauseID = strings.Where((s) => s.Contains("text")).FirstOrDefault();
+                    var clauseText = strings.Where((s) => s.Contains("text")).FirstOrDefault();
+                    // add clause
+                    var lexemes = strings.Where((s) => Regex.IsMatch(s, @"^\d{1,}")).ToList();
+                    // add lexemes and their graphemes
+                    progressBar1.PerformStep();
                 }
             }
         }

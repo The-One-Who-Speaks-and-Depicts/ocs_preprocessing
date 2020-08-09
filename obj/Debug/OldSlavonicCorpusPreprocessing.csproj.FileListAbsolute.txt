@@ -15,3 +15,16 @@ C:\Users\user\source\repos\OldSlavonicCorpusPreprocessing\OldSlavonicCorpusPrepr
 C:\Users\user\source\repos\OldSlavonicCorpusPreprocessing\OldSlavonicCorpusPreprocessing\obj\Debug\OldSlavonicCorpusPreprocessing.Form6.resources
 C:\Users\user\source\repos\OldSlavonicCorpusPreprocessing\OldSlavonicCorpusPreprocessing\obj\Debug\OldSlavonicCorpusPreprocessing.StartWindow.resources
 C:\Users\user\source\repos\OldSlavonicCorpusPreprocessing\OldSlavonicCorpusPreprocessing\obj\Debug\OldSlavonicCorpusPreprocessing.CodexMarianusParsing.resources
+C:\Users\user\source\repos\OldSlavonicCorpusPreprocessing\OldSlavonicCorpusPreprocessing\bin\Debug\ExcelDataReader.DataSet.dll
+C:\Users\user\source\repos\OldSlavonicCorpusPreprocessing\OldSlavonicCorpusPreprocessing\bin\Debug\ExcelDataReader.dll
+C:\Users\user\source\repos\OldSlavonicCorpusPreprocessing\OldSlavonicCorpusPreprocessing\bin\Debug\Newtonsoft.Json.dll
+C:\Users\user\source\repos\OldSlavonicCorpusPreprocessing\OldSlavonicCorpusPreprocessing\bin\Debug\System.Runtime.CompilerServices.Unsafe.dll
+C:\Users\user\source\repos\OldSlavonicCorpusPreprocessing\OldSlavonicCorpusPreprocessing\bin\Debug\System.Text.Encoding.CodePages.dll
+C:\Users\user\source\repos\OldSlavonicCorpusPreprocessing\OldSlavonicCorpusPreprocessing\bin\Debug\ExcelDataReader.pdb
+C:\Users\user\source\repos\OldSlavonicCorpusPreprocessing\OldSlavonicCorpusPreprocessing\bin\Debug\ExcelDataReader.xml
+C:\Users\user\source\repos\OldSlavonicCorpusPreprocessing\OldSlavonicCorpusPreprocessing\bin\Debug\ExcelDataReader.DataSet.pdb
+C:\Users\user\source\repos\OldSlavonicCorpusPreprocessing\OldSlavonicCorpusPreprocessing\bin\Debug\ExcelDataReader.DataSet.xml
+C:\Users\user\source\repos\OldSlavonicCorpusPreprocessing\OldSlavonicCorpusPreprocessing\bin\Debug\Newtonsoft.Json.xml
+C:\Users\user\source\repos\OldSlavonicCorpusPreprocessing\OldSlavonicCorpusPreprocessing\bin\Debug\System.Runtime.CompilerServices.Unsafe.xml
+C:\Users\user\source\repos\OldSlavonicCorpusPreprocessing\OldSlavonicCorpusPreprocessing\bin\Debug\System.Text.Encoding.CodePages.xml
+C:\Users\user\source\repos\OldSlavonicCorpusPreprocessing\OldSlavonicCorpusPreprocessing\obj\Debug\OldSlavonicCorpusPreprocessing.csproj.CopyComplete
