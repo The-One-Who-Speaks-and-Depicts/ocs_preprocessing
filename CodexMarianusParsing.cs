@@ -93,9 +93,34 @@ namespace OldSlavonicCorpusPreprocessing
                     }
                     var clauseID = strings.Where((s) => s.Contains("text")).FirstOrDefault();
                     var clauseText = strings.Where((s) => s.Contains("text")).FirstOrDefault();
-                    // add clause
+                    Clause currentClause = new Clause(currentText, clauseID, clauseText);
                     var lexemes = strings.Where((s) => Regex.IsMatch(s, @"^\d{1,}")).ToList();
-                    // add lexemes and their graphemes
+                    foreach (var l in lexemes)
+                    {
+                        var parts = l.Split(' ');
+                        var id = parts[0];
+                        var lexeme = parts[1];
+                        Realization currentRealization = new Realization(currentClause, id, lexeme, lexeme);
+                        var lemma = parts[2];
+                        // add lemma field
+                        var partOfSpeech = parts[3];
+                        // add pos field
+                        Func<Realization, List<Grapheme>> letters = (word) =>
+                        {
+                            List<Grapheme> graphemes = new List<Grapheme>();
+                            for (int i = 0; i < word.lexemeOne.Length; i++)
+                            {
+                                graphemes.Add(new Grapheme(currentRealization, i.ToString(), word.lexemeOne[i].ToString()));
+                            }
+                            return graphemes;
+                        };
+                        currentRealization.letters = letters.Invoke(currentRealization);
+                        if (currentClause.realizations == null)
+                        {
+                            currentClause.realizations = new List<Realization>();
+                        }
+                        currentClause.realizations.Add(currentRealization);
+                    }
                     progressBar1.PerformStep();
                 }
             }
