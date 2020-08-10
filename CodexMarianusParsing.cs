@@ -15,13 +15,6 @@ namespace OldSlavonicCorpusPreprocessing
 {
     public partial class CodexMarianusParsing : Form
     {
-        public enum Gospels
-        {
-            Matthew = 0,
-            Mark = 1,
-            Luke = 2,
-            John = 3
-        }
         public CodexMarianusParsing()
         {
             InitializeComponent();
@@ -54,105 +47,112 @@ namespace OldSlavonicCorpusPreprocessing
                 progressBar1.Maximum = units.Length;
                 foreach (var unit in units)
                 {
-                    Text currentText = new Text();
-                    var strings = unit.Split('\n');
-                    var textNameString = strings.Where((s) => s.Contains("source")).FirstOrDefault();
-                    var textName = Regex.Split(textNameString, ", ")[1];
-                    var textIDAndName = textName.Split(' ');
-                    int preliminaryID = 0;
-                    if (textIDAndName[0] == "Matthew")
+                    try
                     {
-                        preliminaryID = Convert.ToInt32(Gospels.Matthew + textIDAndName[1]);
-                    }
-                    else if (textIDAndName[0] == "Mark")
-                    {
-                        preliminaryID = Convert.ToInt32(Gospels.Mark + textIDAndName[1]);
-                    }
-                    else if (textIDAndName[0] == "Luke")
-                    {
-                        preliminaryID = Convert.ToInt32(Gospels.Luke + textIDAndName[1]);
-                    }
-                    else if (textIDAndName[0] == "John")
-                    {
-                        preliminaryID = Convert.ToInt32(Gospels.John + textIDAndName[1]);
-                    }
-                    if (codexMarianus.texts != null)
-                    {
-                        if (codexMarianus.texts.Where((text) => text.textID == preliminaryID.ToString()).ToList().Count != 0)
+                        Text currentText = new Text();
+                        var strings = unit.Split('\n');
+                        var textNameString = strings.Where((s) => s.Contains("source")).FirstOrDefault();
+                        var textName = Regex.Split(textNameString, ", ")[1];
+                        var textIDAndName = textName.Split(' ');
+                        int preliminaryID = 0;
+                        if (textIDAndName[0] == "Matthew")
                         {
-                            currentText = codexMarianus.texts.Where((text) => text.textID == preliminaryID.ToString()).FirstOrDefault();
+                            preliminaryID = Convert.ToInt32(1 + textIDAndName[1]);
+                        }
+                        else if (textIDAndName[0] == "Mark")
+                        {
+                            preliminaryID = Convert.ToInt32(2 + textIDAndName[1]);
+                        }
+                        else if (textIDAndName[0] == "Luke")
+                        {
+                            preliminaryID = Convert.ToInt32(3 + textIDAndName[1]);
+                        }
+                        else if (textIDAndName[0] == "John")
+                        {
+                            preliminaryID = Convert.ToInt32(4 + textIDAndName[1]);
+                        }
+                        if (codexMarianus.texts != null)
+                        {
+                            if (codexMarianus.texts.Where((text) => text.textID == preliminaryID.ToString()).ToList().Count != 0)
+                            {
+                                currentText = codexMarianus.texts.Where((text) => text.textID == preliminaryID.ToString()).FirstOrDefault();
+                            }
+                            else
+                            {
+                                currentText = new Text(codexMarianus, preliminaryID.ToString(), textName);
+                            }
                         }
                         else
                         {
                             currentText = new Text(codexMarianus, preliminaryID.ToString(), textName);
                         }
-                    }
-                    else
-                    {
-                        currentText = new Text(codexMarianus, preliminaryID.ToString(), textName);
-                    }
-                    var clauseID = strings.Where((s) => s.Contains("text")).FirstOrDefault();
-                    var clauseText = strings.Where((s) => s.Contains("text")).FirstOrDefault();
-                    Clause currentClause = new Clause(currentText, clauseID, clauseText);
-                    var lexemes = strings.Where((s) => Regex.IsMatch(s, @"^\d{1,}")).ToList();
-                    foreach (var l in lexemes)
-                    {
-                        var parts = l.Split(' ');
-                        var id = parts[0];
-                        var lexeme = parts[1];
-                        Realization currentRealization = new Realization(currentClause, id, lexeme, lexeme);
-                        if (currentRealization.realizationFields == null)
+                        var clauseID = strings.Where((s) => s.Contains("text")).FirstOrDefault();
+                        var clauseText = strings.Where((s) => s.Contains("text")).FirstOrDefault();
+                        Clause currentClause = new Clause(currentText, clauseID, clauseText);
+                        var lexemes = strings.Where((s) => Regex.IsMatch(s, @"^\d{1,}")).ToList();
+                        foreach (var l in lexemes)
                         {
-                            currentRealization.realizationFields = new List<Dictionary<string, List<IValue>>>();
-                        }
-                        currentRealization.realizationFields.Add(new Dictionary<string, List<IValue>>());
-                        var lemma = parts[2];
-                        List<IValue> lemmaList = new List<IValue>();
-                        lemmaList.Add(new SimpleValue(lemma));
-                        currentRealization.realizationFields[0].Add("Lemma", lemmaList);
-                        var partOfSpeech = parts[3];
-                        List<IValue> posList = new List<IValue>();
-                        posList.Add(new SimpleValue(partOfSpeech));
-                        currentRealization.realizationFields[0].Add("Lemma", posList);
-                        List<Grapheme> letters(Realization word)
-                        {
-                            List<Grapheme> graphemes = new List<Grapheme>();
-                            for (int i = 0; i < word.lexemeOne.Length; i++)
+                            var parts = l.Split('\t');
+                            var id = parts[0];
+                            var lexeme = parts[1];
+                            Realization currentRealization = new Realization(currentClause, id, lexeme, lexeme);
+                            if (currentRealization.realizationFields == null)
                             {
-                                graphemes.Add(new Grapheme(currentRealization, i.ToString(), word.lexemeOne[i].ToString()));
+                                currentRealization.realizationFields = new List<Dictionary<string, List<IValue>>>();
                             }
-                            return graphemes;
+                            currentRealization.realizationFields.Add(new Dictionary<string, List<IValue>>());
+                            var lemma = parts[2];
+                            List<IValue> lemmaList = new List<IValue>();
+                            lemmaList.Add(new SimpleValue(lemma));
+                            currentRealization.realizationFields[0].Add("Lemma", lemmaList);
+                            var partOfSpeech = parts[3];
+                            List<IValue> posList = new List<IValue>();
+                            posList.Add(new SimpleValue(partOfSpeech));
+                            currentRealization.realizationFields[0].Add("PoS", posList);
+                            List<Grapheme> letters(Realization word)
+                            {
+                                List<Grapheme> graphemes = new List<Grapheme>();
+                                for (int i = 0; i < word.lexemeOne.Length; i++)
+                                {
+                                    graphemes.Add(new Grapheme(currentRealization, i.ToString(), word.lexemeOne[i].ToString()));
+                                }
+                                return graphemes;
+                            }
+                            currentRealization.letters = letters(currentRealization);
+                            if (currentClause.realizations == null)
+                            {
+                                currentClause.realizations = new List<Realization>();
+                            }
+                            currentClause.realizations.Add(currentRealization);
                         }
-                        currentRealization.letters = letters(currentRealization);
-                        if (currentClause.realizations == null)
+                        if (currentText.clauses == null)
                         {
-                            currentClause.realizations = new List<Realization>();
+                            currentText.clauses = new List<Clause>();
                         }
-                        currentClause.realizations.Add(currentRealization);
-                    }
-                    if (currentText.clauses == null)
-                    {
-                        currentText.clauses = new List<Clause>();                        
-                    }
-                    currentText.clauses.Add(currentClause);
-                    if (codexMarianus.texts == null)
-                    {
-                        codexMarianus.texts = new List<Text>();
-                        codexMarianus.texts.Add(currentText);
-                    }
-                    else
-                    {
-                        if (codexMarianus.texts.Where((text) => text.textID == currentText.textID.ToString()).Count() > 0)
+                        currentText.clauses.Add(currentClause);
+                        if (codexMarianus.texts == null)
                         {
-                            int index = codexMarianus.texts.FindIndex((text) => text.textID == currentText.textID);
-                            codexMarianus.texts[index] = currentText;
+                            codexMarianus.texts = new List<Text>();
+                            codexMarianus.texts.Add(currentText);
                         }
                         else
                         {
-                            codexMarianus.texts.Add(currentText);
+                            if (codexMarianus.texts.Where((text) => text.textID == currentText.textID.ToString()).Count() > 0)
+                            {
+                                int index = codexMarianus.texts.FindIndex((text) => text.textID == currentText.textID);
+                                codexMarianus.texts[index] = currentText;
+                            }
+                            else
+                            {
+                                codexMarianus.texts.Add(currentText);
+                            }
                         }
+                        progressBar1.PerformStep();
                     }
-                    progressBar1.PerformStep();
+                    catch
+                    {
+                        continue;
+                    }                    
                 }
                 using (StreamWriter w = new StreamWriter(Path.Combine(folderPath, "Codex_Marianus.json")))
                 {
