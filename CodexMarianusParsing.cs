@@ -101,11 +101,20 @@ namespace OldSlavonicCorpusPreprocessing
                         var id = parts[0];
                         var lexeme = parts[1];
                         Realization currentRealization = new Realization(currentClause, id, lexeme, lexeme);
+                        if (currentRealization.realizationFields == null)
+                        {
+                            currentRealization.realizationFields = new List<Dictionary<string, List<IValue>>>();
+                        }
+                        currentRealization.realizationFields.Add(new Dictionary<string, List<IValue>>());
                         var lemma = parts[2];
-                        // add lemma field
+                        List<IValue> lemmaList = new List<IValue>();
+                        lemmaList.Add(new SimpleValue(lemma));
+                        currentRealization.realizationFields[0].Add("Lemma", lemmaList);
                         var partOfSpeech = parts[3];
-                        // add pos field
-                        Func<Realization, List<Grapheme>> letters = (word) =>
+                        List<IValue> posList = new List<IValue>();
+                        posList.Add(new SimpleValue(partOfSpeech));
+                        currentRealization.realizationFields[0].Add("Lemma", posList);
+                        List<Grapheme> letters(Realization word)
                         {
                             List<Grapheme> graphemes = new List<Grapheme>();
                             for (int i = 0; i < word.lexemeOne.Length; i++)
@@ -113,16 +122,43 @@ namespace OldSlavonicCorpusPreprocessing
                                 graphemes.Add(new Grapheme(currentRealization, i.ToString(), word.lexemeOne[i].ToString()));
                             }
                             return graphemes;
-                        };
-                        currentRealization.letters = letters.Invoke(currentRealization);
+                        }
+                        currentRealization.letters = letters(currentRealization);
                         if (currentClause.realizations == null)
                         {
                             currentClause.realizations = new List<Realization>();
                         }
                         currentClause.realizations.Add(currentRealization);
                     }
+                    if (currentText.clauses == null)
+                    {
+                        currentText.clauses = new List<Clause>();                        
+                    }
+                    currentText.clauses.Add(currentClause);
+                    if (codexMarianus.texts == null)
+                    {
+                        codexMarianus.texts = new List<Text>();
+                        codexMarianus.texts.Add(currentText);
+                    }
+                    else
+                    {
+                        if (codexMarianus.texts.Where((text) => text.textID == currentText.textID.ToString()).Count() > 0)
+                        {
+                            int index = codexMarianus.texts.FindIndex((text) => text.textID == currentText.textID);
+                            codexMarianus.texts[index] = currentText;
+                        }
+                        else
+                        {
+                            codexMarianus.texts.Add(currentText);
+                        }
+                    }
                     progressBar1.PerformStep();
                 }
+                using (StreamWriter w = new StreamWriter(Path.Combine(folderPath, "Codex_Marianus.json")))
+                {
+                    w.WriteLine(codexMarianus.Jsonize());
+                }
+                MessageBox.Show("Файл обработан!", "Сообщение системы", MessageBoxButtons.OK);
             }
         }
     }
