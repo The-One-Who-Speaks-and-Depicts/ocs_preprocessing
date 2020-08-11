@@ -101,15 +101,15 @@ namespace OldSlavonicCorpusPreprocessing
                             Realization currentRealization = new Realization(currentClause, id, lexeme, lexeme);
                             if (currentRealization.realizationFields == null)
                             {
-                                currentRealization.realizationFields = new List<Dictionary<string, List<SimpleValue>>>();
+                                currentRealization.realizationFields = new List<Dictionary<string, List<IValue>>>();
                             }
-                            currentRealization.realizationFields.Add(new Dictionary<string, List<SimpleValue>>());
+                            currentRealization.realizationFields.Add(new Dictionary<string, List<IValue>>());
                             var lemma = parts[2];
-                            List<SimpleValue> lemmaList = new List<SimpleValue>();
+                            List<IValue> lemmaList = new List<IValue>();
                             lemmaList.Add(new SimpleValue(lemma));
                             currentRealization.realizationFields[0].Add("Lemma", lemmaList);
                             var partOfSpeech = parts[3];
-                            List<SimpleValue> posList = new List<SimpleValue>();
+                            List<IValue> posList = new List<IValue>();
                             posList.Add(new SimpleValue(partOfSpeech));
                             currentRealization.realizationFields[0].Add("PoS", posList);
                             List<Grapheme> letters(Realization word)
@@ -157,9 +157,17 @@ namespace OldSlavonicCorpusPreprocessing
                         continue;
                     }                    
                 }
-                using (StreamWriter w = new StreamWriter(Path.Combine(folderPath, "Codex_Marianus.json")))
+
+                Newtonsoft.Json.JsonSerializer serializer = new Newtonsoft.Json.JsonSerializer();
+                serializer.Converters.Add(new Newtonsoft.Json.Converters.JavaScriptDateTimeConverter());
+                serializer.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
+                serializer.TypeNameHandling = Newtonsoft.Json.TypeNameHandling.Auto;
+                serializer.Formatting = Newtonsoft.Json.Formatting.Indented;
+
+                using (StreamWriter sw = new StreamWriter(Path.Combine(folderPath, "Codex_Marianus.json")))
+                using (Newtonsoft.Json.JsonWriter writer = new Newtonsoft.Json.JsonTextWriter(sw))
                 {
-                    w.WriteLine(codexMarianus.Jsonize());
+                    serializer.Serialize(writer, codexMarianus, typeof(Document));
                 }
                 MessageBox.Show("Файл обработан!", "Сообщение системы", MessageBoxButtons.OK);
             }
@@ -171,11 +179,11 @@ namespace OldSlavonicCorpusPreprocessing
             if (choice == DialogResult.OK)
             {
                 string filePath = openFileDialog1.FileName;
-                Document codexMarianus = new Document();
-                using (StreamReader r = new StreamReader(filePath))
+                Document codexMarianus = Newtonsoft.Json.JsonConvert.DeserializeObject<Document>(File.ReadAllText(filePath), new Newtonsoft.Json.JsonSerializerSettings
                 {
-                    codexMarianus = JsonConvert.DeserializeObject<Document>(r.ReadToEnd());
-                }
+                    TypeNameHandling = Newtonsoft.Json.TypeNameHandling.Auto,
+                    NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore,
+                });
                 List<(string, string)> pairs = new List<(string, string)>();
                 foreach (var text in codexMarianus.texts)
                 {
