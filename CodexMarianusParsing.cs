@@ -10,6 +10,8 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using CorpusDraftCSharp;
+using IronPython.Hosting;
+using Microsoft.Scripting.Hosting;
 using Newtonsoft.Json;
 
 namespace OldSlavonicCorpusPreprocessing
@@ -188,7 +190,17 @@ namespace OldSlavonicCorpusPreprocessing
                         }
                     }
                 }
-                MessageBox.Show(pairs[0].Item1 + ":" + pairs[0].Item2);
+                ScriptEngine engine = Python.CreateEngine();
+                ScriptScope scope = engine.CreateScope();
+                var paths = engine.GetSearchPaths();
+                paths.Add(@"C:\Users\user\source\repos\OldSlavonicCorpusPreprocessing\OldSlavonicCorpusPreprocessing\Lib\");
+                engine.SetSearchPaths(paths);
+                openFileDialog1.ShowDialog();
+                var pythonFilePath = openFileDialog1.FileName;
+                engine.ExecuteFile(pythonFilePath, scope);
+                dynamic function = scope.GetVariable("main");
+                var result = function(pairs, 90, 0, 0);
+                MessageBox.Show(result.ToString());
             }
         }
     }
