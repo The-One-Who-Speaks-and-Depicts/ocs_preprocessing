@@ -20,7 +20,7 @@ namespace CorpusDraftCSharp
         [JsonProperty]
         public string clauseID;
         [JsonProperty]
-        public List<Dictionary<string, List<IValue>>> realizationFields;
+        public List<Dictionary<string, List<SimpleValue>>> realizationFields;
         [JsonProperty]
         public string realizationID;
         [JsonProperty]
@@ -34,7 +34,7 @@ namespace CorpusDraftCSharp
         #region Constructors
 
         [JsonConstructor]
-        public Realization(string _documentID, string _filePath, string _textID, string _clauseID, List<Dictionary<string, List<IValue>>> _fields, string _realizationID, string _lexemeOne, string _lexemeTwo, List<Grapheme> _letters)
+        public Realization(string _documentID, string _filePath, string _textID, string _clauseID, List<Dictionary<string, List<SimpleValue>>> _fields, string _realizationID, string _lexemeOne, string _lexemeTwo, List<Grapheme> _letters)
         {
             this.documentID = _documentID;
             this.filePath = _filePath;
@@ -99,7 +99,7 @@ namespace CorpusDraftCSharp
             };
             try
             {
-                Func<List<Dictionary<string, List<IValue>>>, string> fieldsInRawText = (List<Dictionary<string, List<IValue>>> fields) =>
+                Func<List<Dictionary<string, List<SimpleValue>>>, string> fieldsInRawText = (List<Dictionary<string, List<SimpleValue>>> fields) =>
                 {
                     string result = "";
                     foreach (var optional_tagging in fields)
@@ -137,7 +137,7 @@ namespace CorpusDraftCSharp
                     }
                     return result;
                 };
-                Func<List<Dictionary<string, List<IValue>>>, string> fieldsInHTML = (List<Dictionary<string, List<IValue>>> fields) =>
+                Func<List<Dictionary<string, List<SimpleValue>>>, string> fieldsInHTML = (List<Dictionary<string, List<SimpleValue>>> fields) =>
                 {
                     return fieldsInRawText.Invoke(fields).Replace("\n", "<br />");
                 };

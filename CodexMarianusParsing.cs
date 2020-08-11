@@ -10,6 +10,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using CorpusDraftCSharp;
+using Newtonsoft.Json;
 
 namespace OldSlavonicCorpusPreprocessing
 {
@@ -57,19 +58,19 @@ namespace OldSlavonicCorpusPreprocessing
                         int preliminaryID = 0;
                         if (textIDAndName[0] == "Matthew")
                         {
-                            preliminaryID = Convert.ToInt32(1 + textIDAndName[1]);
+                            preliminaryID = 100 + Convert.ToInt32(textIDAndName[1]);
                         }
                         else if (textIDAndName[0] == "Mark")
                         {
-                            preliminaryID = Convert.ToInt32(2 + textIDAndName[1]);
+                            preliminaryID = 200 + Convert.ToInt32(textIDAndName[1]);
                         }
                         else if (textIDAndName[0] == "Luke")
                         {
-                            preliminaryID = Convert.ToInt32(3 + textIDAndName[1]);
+                            preliminaryID = 300 + Convert.ToInt32(textIDAndName[1]);
                         }
                         else if (textIDAndName[0] == "John")
                         {
-                            preliminaryID = Convert.ToInt32(4 + textIDAndName[1]);
+                            preliminaryID = 400 + Convert.ToInt32(textIDAndName[1]);
                         }
                         if (codexMarianus.texts != null)
                         {
@@ -98,15 +99,15 @@ namespace OldSlavonicCorpusPreprocessing
                             Realization currentRealization = new Realization(currentClause, id, lexeme, lexeme);
                             if (currentRealization.realizationFields == null)
                             {
-                                currentRealization.realizationFields = new List<Dictionary<string, List<IValue>>>();
+                                currentRealization.realizationFields = new List<Dictionary<string, List<SimpleValue>>>();
                             }
-                            currentRealization.realizationFields.Add(new Dictionary<string, List<IValue>>());
+                            currentRealization.realizationFields.Add(new Dictionary<string, List<SimpleValue>>());
                             var lemma = parts[2];
-                            List<IValue> lemmaList = new List<IValue>();
+                            List<SimpleValue> lemmaList = new List<SimpleValue>();
                             lemmaList.Add(new SimpleValue(lemma));
                             currentRealization.realizationFields[0].Add("Lemma", lemmaList);
                             var partOfSpeech = parts[3];
-                            List<IValue> posList = new List<IValue>();
+                            List<SimpleValue> posList = new List<SimpleValue>();
                             posList.Add(new SimpleValue(partOfSpeech));
                             currentRealization.realizationFields[0].Add("PoS", posList);
                             List<Grapheme> letters(Realization word)
@@ -159,6 +160,35 @@ namespace OldSlavonicCorpusPreprocessing
                     w.WriteLine(codexMarianus.Jsonize());
                 }
                 MessageBox.Show("Файл обработан!", "Сообщение системы", MessageBoxButtons.OK);
+            }
+        }
+
+        private void Button3_Click(object sender, EventArgs e)
+        {
+            var choice = openFileDialog1.ShowDialog();
+            if (choice == DialogResult.OK)
+            {
+                string filePath = openFileDialog1.FileName;
+                Document codexMarianus = new Document();
+                using (StreamReader r = new StreamReader(filePath))
+                {
+                    codexMarianus = JsonConvert.DeserializeObject<Document>(r.ReadToEnd());
+                }
+                List<(string, string)> pairs = new List<(string, string)>();
+                foreach (var text in codexMarianus.texts)
+                {
+                    foreach (var clause in text.clauses)
+                    {
+                        foreach(var realization in clause.realizations)
+                        {
+                            foreach (var fieldGroup in realization.realizationFields)
+                            {
+                                pairs.Add((realization.lexemeOne, fieldGroup["PoS"][0].name));
+                            }
+                        }
+                    }
+                }
+                MessageBox.Show(pairs[0].Item1 + ":" + pairs[0].Item2);
             }
         }
     }
