@@ -180,6 +180,7 @@
     <EmbeddedResource Include="StartWindow.resx">
       <DependentUpon>StartWindow.cs</DependentUpon>
     </EmbeddedResource>
+    <None Include="HMM\hmm.bat" />
     <None Include="HMM\LICENSE" />
     <None Include="HMM\README.md" />
     <None Include="packages.config" />

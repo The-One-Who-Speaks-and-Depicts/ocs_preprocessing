@@ -202,7 +202,7 @@ namespace OldSlavonicCorpusPreprocessing
                 {
                     foreach (var pair in pairs)
                     {
-                        w.WriteLine(pair.Item1 + "\t" + pair.Item2);
+                        w.WriteLine(pair.Item1 + " " + pair.Item2);
                     }
                 }
                 MessageBox.Show("Файл обработан!", "Сообщение программы");

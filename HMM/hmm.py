@@ -136,24 +136,15 @@ class HMM:
         else:     
             return np.matrix([self.emission_probs[self.tag_dict[tag]] for tag in probable_tags]).mean() 
 
-# firstly, we need to know the data format, to do something in here
-# and to do that, we should do something with Codex Marianus
-# and to do that, we should do something with an original project DB
 def get_data(filepath):
     raw_data = open(filepath, encoding='utf8').readlines()
-    all_sequences = []
-    current_sequence = []
+    all_sequences = []    
     for instance in raw_data:
+        current_sequence = []
         if instance != '\n':
             cols = instance.split()
-            if cols[1] != '_':
-                if cols[3] == 'satın':
-                    current_sequence.append((cols[1], 'Noun'))
-                else:    
-                    current_sequence.append((cols[1], cols[3]))
-        else:
+            current_sequence.append((cols[0], cols[1]))
             all_sequences.append(current_sequence)
-            current_sequence = []   
     return all_sequences
 
 def split_data(data, percent):
@@ -207,9 +198,9 @@ def plot_confusion_matrix(cm, cmap=None, normalize = True, target_names = None, 
         plt.savefig('output.png')
 
 def main(args):
-    pass
-    #seed(5)
-    #all_sequences = get_data(args.data)
+    seed(5)
+    all_sequences = get_data(args.data)
+    print(all_sequences[0])
     #train_data, test_data = split_data(all_sequences, args.split)
     #hmm = HMM(train_data, test_data, int(args.unknown_to_singleton),int(args.printSequences))
     #hmm.train()
