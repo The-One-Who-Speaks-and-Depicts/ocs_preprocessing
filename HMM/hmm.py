@@ -168,6 +168,7 @@ def main(args):
     hmm.train()
     hmm.test()
     # save model
+    #add prediction
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -176,6 +177,7 @@ if __name__ == '__main__':
     parser.add_argument('--unknown_to_singleton', default='0')
     parser.add_argument('--printSequences',default='0')
     parser.add_argument('--folder', default=os.path.dirname(os.path.realpath(__file__)))
+    #add prediction argument
 
     args = parser.parse_args()
     main(args)

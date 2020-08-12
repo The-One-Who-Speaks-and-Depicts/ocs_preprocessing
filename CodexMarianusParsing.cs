@@ -205,7 +205,8 @@ namespace OldSlavonicCorpusPreprocessing
                         w.WriteLine(pair.Item1 + " " + pair.Item2);
                     }
                 }
-                MessageBox.Show("Файл обработан!", "Сообщение программы");
+                // add bat file execution
+                MessageBox.Show("Модель создана!", "Сообщение программы");
             }
         }
     }
