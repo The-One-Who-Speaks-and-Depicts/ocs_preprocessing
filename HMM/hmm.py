@@ -91,7 +91,6 @@ class HMM:
                 conf_mat[actual_tag, predicted_tag] += 1  
         print("sentence truth : "+str(sentence_truth[0]/(sentence_truth[0]+sentence_truth[1]))+"%")
         print("word truth : "+str(word_truth[0]/(word_truth[0]+word_truth[1]))+"%")
-        plot_confusion_matrix(conf_mat, normalize=False,unknown_to_singleton=self.unknown_to_singleton)
         return word_truth, sentence_truth, conf_mat
 
     def viterbi(self, sequence, actual_tags):
@@ -121,13 +120,13 @@ class HMM:
                 prob = self.emission_probs[state, index] 
                 return self.emission_probs[state, index]
 
-        tag_likelihoods = {'Verb': is_verb(word), 'Noun': is_noun(word),  'Pron': is_pron(word), 'Ques': is_ques(word), 'Adj': is_adj(word), 'Adv': is_adv(word), 'Det': is_det(word)}
+        tag_likelihoods = {'Verb': False, 'Noun': False,  'Pron': False, 'Ques': False, 'Adj': False, 'Adv': False, 'Det': False} # THIS IS TO BE CHANGED!
         probable_tags = [k for k, v in tag_likelihoods.items() if v == True]
         if len(probable_tags) == 0:
             if self.unknown_to_singleton == 1:
                 return self.unknown_tags
             else:
-                probable_tags.append('Noun')
+               probable_tags.append('NOUN') # AND THIS
         if state == -1:
             all_emissions = np.zeros(len(self.tags))
             for tag in probable_tags:
@@ -154,57 +153,21 @@ def split_data(data, percent):
 
 def normalize(matrix):
     row_sums = matrix.sum(axis=1)
+    np.seterr(divide='ignore', invalid='ignore')
     return matrix / row_sums[:, np.newaxis]            
 
 def enumerate_list(data):
     return {instance: index for index, instance in enumerate(data)}
 
 
-def plot_confusion_matrix(cm, cmap=None, normalize = True, target_names = None, title = "Confusion Matrix", unknown_to_singleton=0):
-    
-    if cmap is None:
-        cmap = plt.get_cmap('Blues')
-
-    plt.figure(figsize=(24, 18))
-    plt.imshow(cm, interpolation='nearest', cmap=cmap)
-    #plt.title(title)
-    plt.colorbar()
-
-    if target_names is not None:
-        tick_marks = np.arange(len(target_names))
-        plt.xticks(tick_marks, target_names, rotation=45)
-        plt.yticks(tick_marks, target_names)
-
-    if normalize:
-        cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
-
-
-    thresh = cm.max() / 1.5 if normalize else cm.max() / 2
-    for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
-        if normalize:
-            plt.text(j, i, "{:0.4f}".format(cm[i, j]),
-                     horizontalalignment="center",
-                     color="white" if cm[i, j] > thresh else "black")
-        else:
-            plt.text(j, i, "{:,}".format(cm[i, j]),
-                     horizontalalignment="center",
-                     color="white" if cm[i, j] > thresh else "black")
-
-
-    plt.tight_layout()
-    if unknown_to_singleton==1:
-        plt.savefig('output_UtoS.png')
-    else:
-        plt.savefig('output.png')
-
 def main(args):
     seed(5)
     all_sequences = get_data(args.data)
-    print(all_sequences[0])
-    #train_data, test_data = split_data(all_sequences, args.split)
-    #hmm = HMM(train_data, test_data, int(args.unknown_to_singleton),int(args.printSequences))
-    #hmm.train()
-    #hmm.test()
+    train_data, test_data = split_data(all_sequences, args.split)
+    hmm = HMM(train_data, test_data, int(args.unknown_to_singleton),int(args.printSequences))
+    hmm.train()
+    hmm.test()
+    # save model
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
