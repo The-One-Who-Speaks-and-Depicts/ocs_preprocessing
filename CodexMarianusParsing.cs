@@ -158,14 +158,14 @@ namespace OldSlavonicCorpusPreprocessing
                     }                    
                 }
 
-                Newtonsoft.Json.JsonSerializer serializer = new Newtonsoft.Json.JsonSerializer();
+                JsonSerializer serializer = new JsonSerializer();
                 serializer.Converters.Add(new Newtonsoft.Json.Converters.JavaScriptDateTimeConverter());
-                serializer.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
-                serializer.TypeNameHandling = Newtonsoft.Json.TypeNameHandling.Auto;
-                serializer.Formatting = Newtonsoft.Json.Formatting.Indented;
+                serializer.NullValueHandling = NullValueHandling.Ignore;
+                serializer.TypeNameHandling = TypeNameHandling.Auto;
+                serializer.Formatting = Formatting.Indented;
 
                 using (StreamWriter sw = new StreamWriter(Path.Combine(folderPath, "Codex_Marianus.json")))
-                using (Newtonsoft.Json.JsonWriter writer = new Newtonsoft.Json.JsonTextWriter(sw))
+                using (JsonWriter writer = new JsonTextWriter(sw))
                 {
                     serializer.Serialize(writer, codexMarianus, typeof(Document));
                 }
@@ -179,10 +179,10 @@ namespace OldSlavonicCorpusPreprocessing
             if (choice == DialogResult.OK)
             {
                 string filePath = openFileDialog1.FileName;
-                Document codexMarianus = Newtonsoft.Json.JsonConvert.DeserializeObject<Document>(File.ReadAllText(filePath), new Newtonsoft.Json.JsonSerializerSettings
+                Document codexMarianus = JsonConvert.DeserializeObject<Document>(File.ReadAllText(filePath), new JsonSerializerSettings
                 {
-                    TypeNameHandling = Newtonsoft.Json.TypeNameHandling.Auto,
-                    NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore,
+                    TypeNameHandling = TypeNameHandling.Auto,
+                    NullValueHandling = NullValueHandling.Ignore,
                 });
                 List<(string, string)> pairs = new List<(string, string)>();
                 foreach (var text in codexMarianus.texts)
@@ -198,17 +198,14 @@ namespace OldSlavonicCorpusPreprocessing
                         }
                     }
                 }
-                ScriptEngine engine = Python.CreateEngine();
-                ScriptScope scope = engine.CreateScope();
-                var paths = engine.GetSearchPaths();
-                paths.Add(@"C:\Users\user\source\repos\OldSlavonicCorpusPreprocessing\OldSlavonicCorpusPreprocessing\Lib\");
-                engine.SetSearchPaths(paths);
-                openFileDialog1.ShowDialog();
-                var pythonFilePath = openFileDialog1.FileName;
-                engine.ExecuteFile(pythonFilePath, scope);
-                dynamic function = scope.GetVariable("main");
-                var result = function(pairs, 90, 0, 0);
-                MessageBox.Show(result.ToString());
+                using (StreamWriter w = new StreamWriter(@"C:\Users\user\source\repos\OldSlavonicCorpusPreprocessing\OldSlavonicCorpusPreprocessing\HMM\pos_tagged.txt"))
+                {
+                    foreach (var pair in pairs)
+                    {
+                        w.WriteLine(pair.Item1 + "\t" + pair.Item2);
+                    }
+                }
+                MessageBox.Show("Файл обработан!", "Сообщение программы");
             }
         }
     }

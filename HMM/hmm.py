@@ -1,15 +1,16 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
-#from random import shuffle
-#from random import seed
-#import numpy as np
-#import seaborn as sns; sns.set()
-#from matplotlib.colors import LogNorm
-#import matplotlib.pyplot as plt
-#import itertools
-#from subcategorization import is_verb, is_noun, is_pron, is_ques, is_adj, is_adv, is_det
-#import argparse
-#from collections import Counter
+# -*- coding: utf-8 -*
+import os
+from random import shuffle
+from random import seed
+import numpy as np
+import seaborn as sns; sns.set()
+from matplotlib.colors import LogNorm
+import matplotlib.pyplot as plt
+import itertools
+from subcategorization import is_verb, is_noun, is_pron, is_ques, is_adj, is_adv, is_det
+import argparse
+from collections import Counter
 
 class HMM:
 
@@ -205,11 +206,22 @@ def plot_confusion_matrix(cm, cmap=None, normalize = True, target_names = None, 
     else:
         plt.savefig('output.png')
 
-def main(tuples, split, unknown_to_singleton, printSequences):
-   return tuples[0]
+def main(args):
+    pass
     #seed(5)
     #all_sequences = get_data(args.data)
     #train_data, test_data = split_data(all_sequences, args.split)
     #hmm = HMM(train_data, test_data, int(args.unknown_to_singleton),int(args.printSequences))
     #hmm.train()
     #hmm.test()
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--data')
+    parser.add_argument('--split', default='90')
+    parser.add_argument('--unknown_to_singleton', default='0')
+    parser.add_argument('--printSequences',default='0')
+    parser.add_argument('--folder', default=os.path.dirname(os.path.realpath(__file__)))
+
+    args = parser.parse_args()
+    main(args)
