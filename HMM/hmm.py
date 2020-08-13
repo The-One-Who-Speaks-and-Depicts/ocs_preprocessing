@@ -11,6 +11,8 @@ import itertools
 from subcategorization import is_verb, is_noun, is_pron, is_ques, is_adj, is_adv, is_det
 import argparse
 from collections import Counter
+import pickle
+import json
 
 class HMM:
 
@@ -161,14 +163,19 @@ def enumerate_list(data):
 
 
 def main(args):
-    seed(5)
-    all_sequences = get_data(args.data)
-    train_data, test_data = split_data(all_sequences, args.split)
-    hmm = HMM(train_data, test_data, int(args.unknown_to_singleton),int(args.printSequences))
-    hmm.train()
-    hmm.test()
-    # save model
-    #add prediction
+    if (int(args.predict) == 0):
+        seed(5)
+        all_sequences = get_data(args.data)
+        train_data, test_data = split_data(all_sequences, args.split)
+        hmm = HMM(train_data, test_data, int(args.unknown_to_singleton),int(args.printSequences))
+        hmm.train()
+        hmm.test()
+        with open(args.folder + '\\hmm.pkl', 'wb') as output:
+            print(output)            
+            pickle.dump(hmm, output, pickle.HIGHEST_PROTOCOL)
+    else:
+        pass
+        #add prediction
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -177,7 +184,7 @@ if __name__ == '__main__':
     parser.add_argument('--unknown_to_singleton', default='0')
     parser.add_argument('--printSequences',default='0')
     parser.add_argument('--folder', default=os.path.dirname(os.path.realpath(__file__)))
-    #add prediction argument
+    parser.add_argument('--predict', default='0')
 
     args = parser.parse_args()
     main(args)

@@ -221,7 +221,9 @@ namespace OldSlavonicCorpusPreprocessing
 
                 process.WaitForExit();
 
-                MessageBox.Show("Модель создана!", "Сообщение программы");
+                string output = process.StandardOutput.ReadToEnd();
+                string error = process.StandardError.ReadToEnd();
+                MessageBox.Show(output + ":" + error, "Сообщение программы");
             }
         }
     }
