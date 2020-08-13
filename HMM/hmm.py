@@ -126,7 +126,7 @@ class HMM:
             if self.unknown_to_singleton == 1:
                 return self.unknown_tags
             else:
-               probable_tags.append('NOUN') # AND THIS
+               probable_tags.append('NOUN')
         if state == -1:
             all_emissions = np.zeros(len(self.tags))
             for tag in probable_tags:

@@ -9,6 +9,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Diagnostics;
 using CorpusDraftCSharp;
 using IronPython.Hosting;
 using Microsoft.Scripting.Hosting;
@@ -205,7 +206,21 @@ namespace OldSlavonicCorpusPreprocessing
                         w.WriteLine(pair.Item1 + " " + pair.Item2);
                     }
                 }
-                // add bat file execution
+                var processInfo = new ProcessStartInfo("cmd.exe", "/c" + "\"C:\\Users\\user\\source\\repos\\OldSlavonicCorpusPreprocessing\\OldSlavonicCorpusPreprocessing\\HMM\\HMM.bat\"");
+
+                processInfo.CreateNoWindow = true;
+
+                processInfo.UseShellExecute = false;
+
+                processInfo.RedirectStandardError = true;
+                processInfo.RedirectStandardOutput = true;
+
+                var process = Process.Start(processInfo);
+
+                process.Start();
+
+                process.WaitForExit();
+
                 MessageBox.Show("Модель создана!", "Сообщение программы");
             }
         }
