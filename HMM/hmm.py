@@ -91,7 +91,6 @@ class HMM:
                 else: 
                     word_truth[1] += 1
                 conf_mat[actual_tag, predicted_tag] += 1
-        print(type(predicted_tags[0]))        
         print("sentence truth : "+str(sentence_truth[0]/(sentence_truth[0]+sentence_truth[1]))+"%")
         print("word truth : "+str(word_truth[0]/(word_truth[0]+word_truth[1]))+"%")
         return word_truth, sentence_truth, conf_mat
@@ -139,14 +138,13 @@ class HMM:
             return np.matrix([self.emission_probs[self.tag_dict[tag]] for tag in probable_tags]).mean()
     
     def predict(self, data):
+        predicted = []
         for index, sequence in enumerate(data):
             predicted_tags = self.viterbi(list(map(lambda x: x[0], sequence)))
-            if self.printSequences==1:
-                print(' '.join(map(lambda x: x[0], sequence)))
-                print(str(index) + ' '.join([word for word, tag in sequence]))
-                print(' '.join(map(lambda x: x[1], sequence)))
-                print(' '.join([str(self.tags[tag]) for tag in predicted_tags]))
-                print(' '.join(map(lambda x: str(self.word_dict.get(x[0].lower(),-1)), sequence)))
+            word_tagged = ' '.join(map(lambda x: x[0], sequence))
+            tag_acquired = ' '.join([str(self.tags[tag]) for tag in predicted_tags])
+            predicted.append(word_tagged + ' ' + tag_acquired)
+        return predicted
 
 
 def get_data(filepath):
@@ -195,20 +193,23 @@ def main(args):
         hmm.test()
         with open(args.folder + '\\hmm.pkl', 'wb') as output:
             pickle.dump(hmm, output, pickle.HIGHEST_PROTOCOL)
+            print("Way to file: " + args.folder + "\\hmm.pkl")
     else:
         with open(args.folder + '\\hmm.pkl', 'rb') as inp:
             predictor = pickle.load(inp)
-            predictor.predict(get_data_for_prediction(args.folder + "\\test.txt"))
-        #add prediction
+            predictions = predictor.predict(get_data_for_prediction(args.data))
+            with open(args.folder + '\\result.txt', 'w') as out:
+                for p in predictions:
+                    out.write(p + '\n')
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--data')
+    parser.add_argument('--data', default=(os.path.dirname(os.path.realpath(__file__)) + "\\file.txt"))
     parser.add_argument('--split', default='90')
     parser.add_argument('--unknown_to_singleton', default='0')
     parser.add_argument('--printSequences',default='0')
     parser.add_argument('--folder', default=os.path.dirname(os.path.realpath(__file__)))
-    parser.add_argument('--predict', default='1')
+    parser.add_argument('--predict', default='0')
 
     args = parser.parse_args()
     main(args)

@@ -181,8 +181,7 @@
       <DependentUpon>StartWindow.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="HMM\hmm.bat" />
-    <None Include="HMM\LICENSE" />
-    <None Include="HMM\README.md" />
+    <None Include="HMM\hmm_predict.bat" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -200,7 +199,6 @@
   <ItemGroup />
   <ItemGroup>
     <Content Include="HMM\hmm.py" />
-    <Content Include="HMM\requirements.txt" />
     <Content Include="HMM\subcategorization.py" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
