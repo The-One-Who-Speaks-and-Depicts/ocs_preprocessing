@@ -74,7 +74,7 @@ class HMM:
         conf_mat = np.zeros((self.num_of_tags, self.num_of_tags))
         for index, sequence in enumerate(self.test_data):
             actual_tags = list(map(lambda x: self.tag_dict[x[1]], sequence))
-            predicted_tags = self.viterbi(list(map(lambda x: x[0], sequence)), actual_tags)
+            predicted_tags = self.viterbi(list(map(lambda x: x[0], sequence)))            
             if self.printSequences==1:
                 print(' '.join(map(lambda x: x[0], sequence)))
                 print(str(index) + ' '.join([word for word, tag in sequence]))
@@ -90,12 +90,13 @@ class HMM:
                     word_truth[0] += 1
                 else: 
                     word_truth[1] += 1
-                conf_mat[actual_tag, predicted_tag] += 1  
+                conf_mat[actual_tag, predicted_tag] += 1
+        print(type(predicted_tags[0]))        
         print("sentence truth : "+str(sentence_truth[0]/(sentence_truth[0]+sentence_truth[1]))+"%")
         print("word truth : "+str(word_truth[0]/(word_truth[0]+word_truth[1]))+"%")
         return word_truth, sentence_truth, conf_mat
 
-    def viterbi(self, sequence, actual_tags):
+    def viterbi(self, sequence):
         seq_len = len(sequence)
         V = np.zeros((self.num_of_tags, seq_len))
         B = np.zeros((self.num_of_tags, seq_len))    
@@ -135,7 +136,18 @@ class HMM:
                 all_emissions[self.tag_dict[tag]] = self.emission_probs[self.tag_dict[tag]].mean()
             return all_emissions
         else:     
-            return np.matrix([self.emission_probs[self.tag_dict[tag]] for tag in probable_tags]).mean() 
+            return np.matrix([self.emission_probs[self.tag_dict[tag]] for tag in probable_tags]).mean()
+    
+    def predict(self, data):
+        for index, sequence in enumerate(data):
+            predicted_tags = self.viterbi(list(map(lambda x: x[0], sequence)))
+            if self.printSequences==1:
+                print(' '.join(map(lambda x: x[0], sequence)))
+                print(str(index) + ' '.join([word for word, tag in sequence]))
+                print(' '.join(map(lambda x: x[1], sequence)))
+                print(' '.join([str(self.tags[tag]) for tag in predicted_tags]))
+                print(' '.join(map(lambda x: str(self.word_dict.get(x[0].lower(),-1)), sequence)))
+
 
 def get_data(filepath):
     raw_data = open(filepath, encoding='utf8').readlines()
@@ -145,6 +157,17 @@ def get_data(filepath):
         if instance != '\n':
             cols = instance.split()
             current_sequence.append((cols[0], cols[1]))
+            all_sequences.append(current_sequence)
+    return all_sequences
+
+def get_data_for_prediction(filepath):
+    raw_data = open(filepath, encoding='utf8').readlines()
+    all_sequences = []    
+    for instance in raw_data:
+        current_sequence = []
+        if instance != '\n':
+            cols = instance.split()
+            current_sequence.append((cols[0], ""))
             all_sequences.append(current_sequence)
     return all_sequences
 
@@ -171,10 +194,11 @@ def main(args):
         hmm.train()
         hmm.test()
         with open(args.folder + '\\hmm.pkl', 'wb') as output:
-            print(output)            
             pickle.dump(hmm, output, pickle.HIGHEST_PROTOCOL)
     else:
-        pass
+        with open(args.folder + '\\hmm.pkl', 'rb') as inp:
+            predictor = pickle.load(inp)
+            predictor.predict(get_data_for_prediction(args.folder + "\\test.txt"))
         #add prediction
 
 if __name__ == '__main__':
@@ -184,7 +208,7 @@ if __name__ == '__main__':
     parser.add_argument('--unknown_to_singleton', default='0')
     parser.add_argument('--printSequences',default='0')
     parser.add_argument('--folder', default=os.path.dirname(os.path.realpath(__file__)))
-    parser.add_argument('--predict', default='0')
+    parser.add_argument('--predict', default='1')
 
     args = parser.parse_args()
     main(args)
