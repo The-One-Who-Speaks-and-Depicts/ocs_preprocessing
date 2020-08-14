@@ -1,4 +1,3 @@
-#think about doing this
 import re 
 
 def is_verb(word):
@@ -139,6 +138,20 @@ def is_det(word):
     if re.search(r'(bazı|bir(çok|kaç)?|bu|her|hiçbir|kimi|o|şu|tüm)\b', word):
         return True
     elif re.search(r'(d[ae]ki)\b', word):
+        return True
+    else:
+        return False
+
+def is_frag(word):
+    word = word.lower()
+    if re.search(r'=', word):
+        return True
+    else:
+        return False
+
+def is_punct(word):
+    word = word.lower()
+    if re.search(r'.|,', word):
         return True
     else:
         return False

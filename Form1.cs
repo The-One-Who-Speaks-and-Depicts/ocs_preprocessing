@@ -12,6 +12,9 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Data.SqlClient;
 using System.Data.Linq;
+using System.Diagnostics;
+using CorpusDraftCSharp;
+using Newtonsoft.Json;
 
 namespace OldSlavonicCorpusPreprocessing
 {
@@ -360,6 +363,108 @@ namespace OldSlavonicCorpusPreprocessing
         {
             if (text_is_ready)
             {
+                var choice = folderBrowserDialog1.ShowDialog();
+                if (choice == DialogResult.OK)
+                {
+                    string folderPath = folderBrowserDialog1.SelectedPath;
+                    Document serializedDoc = new Document(new DirectoryInfo(folderPath).GetFiles().Length.ToString(), textBox2.Text,
+                        new DirectoryInfo(folderPath).GetFiles().Length.ToString() + "_" + textBox2.Text, "_");
+                    var units = Regex.Split(richTextBox2.Text, "\n");
+                    progressBar1.Minimum = 0;
+                    progressBar1.Value = 0;
+                    progressBar1.Step = 1;
+                    progressBar1.Maximum = units.Length;
+                    Text currentText = new Text(serializedDoc, "0", serializedDoc.documentName);
+                    for (int i = 0; i < units.Length; i++)
+                    {
+                        try
+                        {                            
+                            Clause currentClause = new Clause(currentText, i.ToString(), units[i]);
+                            var lexemes = currentClause.clauseText.Split(' ');
+                            for (int j = 0; j < lexemes.Length; j++)
+                            {
+                                if (lexemes[j].StartsWith("!"))
+                                {
+                                    lexemes[j] = "~" + lexemes[j] + "~";
+                                }
+                                Realization currentRealization = new Realization(currentClause, j.ToString(), lexemes[j], Regex.Replace(lexemes[j], @"[\[\]\?\-\'\`\^\~\(\)\!]", ""));
+                                if (currentRealization.realizationFields == null)
+                                {
+                                    currentRealization.realizationFields = new List<Dictionary<string, List<IValue>>>();
+                                }
+                                currentRealization.realizationFields.Add(new Dictionary<string, List<IValue>>());
+                                string partOfSpeech;
+                                using (StreamWriter w = new StreamWriter(@"C:\Users\user\source\repos\OldSlavonicCorpusPreprocessing\OldSlavonicCorpusPreprocessing\HMM\not_tagged.txt"))
+                                {
+                                    w.WriteLine(currentRealization.lexemeTwo);
+                                }
+                                    var processInfo = new ProcessStartInfo("cmd.exe", "/c" + "\"C:\\Users\\user\\source\\repos\\OldSlavonicCorpusPreprocessing\\OldSlavonicCorpusPreprocessing\\HMM\\hmm_predict.bat\"");
+
+                                    processInfo.CreateNoWindow = true;
+
+                                    processInfo.UseShellExecute = false;
+
+                                    processInfo.RedirectStandardError = true;
+                                    processInfo.RedirectStandardOutput = true;
+
+                                    var process = Process.Start(processInfo);
+
+                                    process.Start();
+
+                                    process.WaitForExit();
+
+                                    using (StreamReader r = new StreamReader(@"C:\Users\user\source\repos\OldSlavonicCorpusPreprocessing\OldSlavonicCorpusPreprocessing\HMM\" + "result.txt"))
+                                    {
+                                        partOfSpeech = r.ReadLine().Split(' ')[1];
+                                    }
+                                File.Delete(@"C:\Users\user\source\repos\OldSlavonicCorpusPreprocessing\OldSlavonicCorpusPreprocessing\HMM\" + "not_tagged.txt");
+                                File.Delete(@"C:\Users\user\source\repos\OldSlavonicCorpusPreprocessing\OldSlavonicCorpusPreprocessing\HMM\" + "result.txt");
+                                List<IValue> posList = new List<IValue>();
+                                posList.Add(new SimpleValue(partOfSpeech));
+                                currentRealization.realizationFields[0].Add("PoS", posList);                                
+                                // here there will be a lemmatization
+                                List<Grapheme> letters(Realization word)
+                                {
+                                    List<Grapheme> graphemes = new List<Grapheme>();
+                                    for (int k = 0; k < word.lexemeOne.Length; k++)
+                                    {
+                                        graphemes.Add(new Grapheme(currentRealization, k.ToString(), word.lexemeOne[k].ToString()));
+                                    }
+                                    return graphemes;
+                                }
+                                currentRealization.letters = letters(currentRealization);
+                                if (currentClause.realizations == null)
+                                {
+                                    currentClause.realizations = new List<Realization>();
+                                }
+                                currentClause.realizations.Add(currentRealization);
+                            }
+                            if (currentText.clauses == null)
+                            {
+                                currentText.clauses = new List<Clause>();
+                            }
+                            currentText.clauses.Add(currentClause);
+                            serializedDoc.texts.Add(currentText);
+                            progressBar1.PerformStep();
+                        }
+                        catch
+                        {
+                            continue;
+                        }
+                    }
+
+                    JsonSerializer serializer = new JsonSerializer();
+                    serializer.Converters.Add(new Newtonsoft.Json.Converters.JavaScriptDateTimeConverter());
+                    serializer.NullValueHandling = NullValueHandling.Ignore;
+                    serializer.TypeNameHandling = TypeNameHandling.Auto;
+                    serializer.Formatting = Formatting.Indented;
+
+                    using (StreamWriter sw = new StreamWriter(Path.Combine(folderPath, serializedDoc.documentName + ".json")))
+                    using (JsonWriter writer = new JsonTextWriter(sw))
+                    {
+                        serializer.Serialize(writer, serializedDoc, typeof(Document));
+                    }
+                }
                 MessageBox.Show("Текст занесён в базу данных", "Сообщение системы", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             else
@@ -398,6 +503,7 @@ namespace OldSlavonicCorpusPreprocessing
                     }
                     progressBar1.PerformStep();
                 }
+                editedText = Regex.Replace(editedText, @"-\s", "");
                 richTextBox2.Text = editedText;
                 MessageBox.Show("Форматирование завершено", "Сообщение программы", MessageBoxButtons.OK);
                 text_is_preprocessed = true;

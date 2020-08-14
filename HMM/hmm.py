@@ -8,7 +8,7 @@ import seaborn as sns; sns.set()
 from matplotlib.colors import LogNorm
 import matplotlib.pyplot as plt
 import itertools
-from subcategorization import is_verb, is_noun, is_pron, is_ques, is_adj, is_adv, is_det
+from subcategorization import is_punct, is_frag
 import argparse
 from collections import Counter
 import pickle
@@ -122,7 +122,7 @@ class HMM:
                 prob = self.emission_probs[state, index] 
                 return self.emission_probs[state, index]
 
-        tag_likelihoods = {'Verb': False, 'Noun': False,  'Pron': False, 'Ques': False, 'Adj': False, 'Adv': False, 'Det': False} # THIS IS TO BE CHANGED!
+        tag_likelihoods = {'PUNCT': False, 'FRAG': False}
         probable_tags = [k for k, v in tag_likelihoods.items() if v == True]
         if len(probable_tags) == 0:
             if self.unknown_to_singleton == 1:
