@@ -421,8 +421,32 @@ namespace OldSlavonicCorpusPreprocessing
                                 File.Delete(@"C:\Users\user\source\repos\OldSlavonicCorpusPreprocessing\OldSlavonicCorpusPreprocessing\HMM\" + "result.txt");
                                 List<IValue> posList = new List<IValue>();
                                 posList.Add(new SimpleValue(partOfSpeech));
-                                currentRealization.realizationFields[0].Add("PoS", posList);                                
-                                // here there will be a lemmatization
+                                currentRealization.realizationFields[0].Add("PoS", posList);
+                                // here lemmatization is being implemented
+                                string lemma;
+                                using (StreamWriter w = new StreamWriter(@"C:\Users\user\source\repos\OldSlavonicCorpusPreprocessing\OldSlavonicCorpusPreprocessing\Lemmatized\not_lemmatized.txt"))
+                                {
+                                    w.WriteLine(currentRealization.lexemeTwo + " " + partOfSpeech);
+                                }
+                                /*
+                                processInfo = new ProcessStartInfo("cmd.exe", "/c" + "\"C:\\Users\\user\\source\\repos\\OldSlavonicCorpusPreprocessing\\OldSlavonicCorpusPreprocessing\\Lemmatizer\\lemmatization_predict.bat\"");
+
+                                processInfo.CreateNoWindow = true;
+
+                                processInfo.UseShellExecute = false;
+
+                                processInfo.RedirectStandardError = true;
+                                processInfo.RedirectStandardOutput = true;
+
+                                process = Process.Start(processInfo);
+
+                                process.WaitForExit();
+
+                                using (StreamReader r = new StreamReader(@"C:\Users\user\source\repos\OldSlavonicCorpusPreprocessing\OldSlavonicCorpusPreprocessing\HMM\" + "result.txt"))
+                                {
+                                    partOfSpeech = r.ReadLine().Split(' ')[1];
+                                }
+                                */
                                 List<Grapheme> letters(Realization word)
                                 {
                                     List<Grapheme> graphemes = new List<Grapheme>();

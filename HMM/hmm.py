@@ -4,7 +4,7 @@ import os
 from random import shuffle
 from random import seed
 import numpy as np
-import seaborn as sns; sns.set()
+#import seaborn as sns; sns.set()
 from matplotlib.colors import LogNorm
 import matplotlib.pyplot as plt
 import itertools

@@ -105,6 +105,7 @@
             this.button4.TabIndex = 6;
             this.button4.Text = "Получить модель лемматизации";
             this.button4.UseVisualStyleBackColor = true;
+            this.button4.Click += new System.EventHandler(this.Button4_Click);
             // 
             // CodexMarianusParsing
             // 

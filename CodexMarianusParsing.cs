@@ -225,13 +225,63 @@ namespace OldSlavonicCorpusPreprocessing
                 string error = process.StandardError.ReadToEnd();
                 if (error != "")
                 {
-                    MessageBox.Show(error, "Сообщение программы");
+                    MessageBox.Show(error, "Ошибка!");
                 }
                 else
                 {
                     MessageBox.Show(output, "Сообщение программы");
                 }
                 
+            }
+        }
+
+        private void Button4_Click(object sender, EventArgs e)
+        {            
+            var choice = openFileDialog1.ShowDialog();
+            if (choice == DialogResult.OK)
+            {
+                string filePath = openFileDialog1.FileName;
+                Document codexMarianus = JsonConvert.DeserializeObject<Document>(File.ReadAllText(filePath), new JsonSerializerSettings
+                {
+                    TypeNameHandling = TypeNameHandling.Auto,
+                    NullValueHandling = NullValueHandling.Ignore,
+                });
+                List<(string, string, string)> triplets = new List<(string, string, string)>();
+                foreach (var text in codexMarianus.texts)
+                {
+                    foreach (var clause in text.clauses)
+                    {
+                        foreach (var realization in clause.realizations)
+                        {
+                            foreach (var fieldGroup in realization.realizationFields)
+                            {
+                                triplets.Add((realization.lexemeOne, fieldGroup["PoS"][0].name, fieldGroup["Lemma"][0].name));
+                            }
+                        }
+                    }
+                }
+                using (StreamWriter w = new StreamWriter(@"C:\Users\user\source\repos\OldSlavonicCorpusPreprocessing\OldSlavonicCorpusPreprocessing\Lemmatized\lemmatized.txt"))
+                {
+                    foreach (var triplet in triplets)
+                    {
+                        w.WriteLine(triplet.Item1 + " " + triplet.Item2 + " " + triplet.Item3);
+                    }
+                }
+                var processInfo = new ProcessStartInfo("cmd.exe", "/c" + "\"C:\\Users\\user\\source\\repos\\OldSlavonicCorpusPreprocessing\\OldSlavonicCorpusPreprocessing\\Lemmatized\\lemmatization.bat\"");
+
+                processInfo.CreateNoWindow = true;
+
+                processInfo.UseShellExecute = false;
+
+                processInfo.RedirectStandardError = true;
+                processInfo.RedirectStandardOutput = false;
+
+                var process = Process.Start(processInfo);
+
+                process.WaitForExit();
+
+                MessageBox.Show("Модель получена!", "Сообщение программы");
+
             }
         }
     }
