@@ -1,4 +1,4 @@
-﻿using System; 
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -21,268 +21,111 @@ namespace OldSlavonicCorpusPreprocessing
     {
         public CodexMarianusParsing()
         {
+
             InitializeComponent();
+            Text = "Обучение на CoNLL-U данных";
         }
 
-        private void Button1_Click(object sender, EventArgs e)
-        {
-            var choice = openFileDialog1.ShowDialog();
-            if (choice == DialogResult.OK)
-            {
-                string filePath = openFileDialog1.FileName;
-                using (StreamReader r = new StreamReader(filePath))
-                {
-                    richTextBox1.Text += r.ReadToEnd();
-                }
-            }
-        }
-
-        private void Button2_Click(object sender, EventArgs e)
-        {
-            var choice = folderBrowserDialog1.ShowDialog();
-            if (choice == DialogResult.OK)
-            {
-                string folderPath = folderBrowserDialog1.SelectedPath;
-                Document codexMarianus = new Document(new DirectoryInfo(folderPath).GetFiles().Length.ToString(), "Codex Marianus",
-                    new DirectoryInfo(folderPath).GetFiles().Length.ToString() + "_" + "Codex Marianus", "_");
-                var units = Regex.Split(richTextBox1.Text, "\n\n");
-                progressBar1.Value = 0;
-                progressBar1.Step = 1;
-                progressBar1.Maximum = units.Length;
-                foreach (var unit in units)
-                {
-                    try
-                    {
-                        Text currentText = new Text();
-                        var strings = unit.Split('\n');
-                        var textNameString = strings.Where((s) => s.Contains("source")).FirstOrDefault();
-                        var textName = Regex.Split(textNameString, ", ")[1];
-                        var textIDAndName = textName.Split(' ');
-                        int preliminaryID = 0;
-                        if (textIDAndName[0] == "Matthew")
-                        {
-                            preliminaryID = 100 + Convert.ToInt32(textIDAndName[1]);
-                        }
-                        else if (textIDAndName[0] == "Mark")
-                        {
-                            preliminaryID = 200 + Convert.ToInt32(textIDAndName[1]);
-                        }
-                        else if (textIDAndName[0] == "Luke")
-                        {
-                            preliminaryID = 300 + Convert.ToInt32(textIDAndName[1]);
-                        }
-                        else if (textIDAndName[0] == "John")
-                        {
-                            preliminaryID = 400 + Convert.ToInt32(textIDAndName[1]);
-                        }
-                        if (codexMarianus.texts != null)
-                        {
-                            if (codexMarianus.texts.Where((text) => text.textID == preliminaryID.ToString()).ToList().Count != 0)
-                            {
-                                currentText = codexMarianus.texts.Where((text) => text.textID == preliminaryID.ToString()).FirstOrDefault();
-                            }
-                            else
-                            {
-                                currentText = new Text(codexMarianus, preliminaryID.ToString(), textName);
-                            }
-                        }
-                        else
-                        {
-                            currentText = new Text(codexMarianus, preliminaryID.ToString(), textName);
-                        }
-                        var clauseID = strings.Where((s) => s.Contains("text")).FirstOrDefault();
-                        var clauseText = strings.Where((s) => s.Contains("text")).FirstOrDefault();
-                        Clause currentClause = new Clause(currentText, clauseID, clauseText);
-                        var lexemes = strings.Where((s) => Regex.IsMatch(s, @"^\d{1,}")).ToList();
-                        foreach (var l in lexemes)
-                        {
-                            var parts = l.Split('\t');
-                            var id = parts[0];
-                            var lexeme = parts[1];
-                            Realization currentRealization = new Realization(currentClause, id, lexeme, lexeme);
-                            if (currentRealization.realizationFields == null)
-                            {
-                                currentRealization.realizationFields = new List<Dictionary<string, List<IValue>>>();
-                            }
-                            currentRealization.realizationFields.Add(new Dictionary<string, List<IValue>>());
-                            var lemma = parts[2];
-                            List<IValue> lemmaList = new List<IValue>();
-                            lemmaList.Add(new SimpleValue(lemma));
-                            currentRealization.realizationFields[0].Add("Lemma", lemmaList);
-                            var partOfSpeech = parts[3];
-                            List<IValue> posList = new List<IValue>();
-                            posList.Add(new SimpleValue(partOfSpeech));
-                            currentRealization.realizationFields[0].Add("PoS", posList);
-                            List<Grapheme> letters(Realization word)
-                            {
-                                List<Grapheme> graphemes = new List<Grapheme>();
-                                for (int i = 0; i < word.lexemeOne.Length; i++)
-                                {
-                                    graphemes.Add(new Grapheme(currentRealization, i.ToString(), word.lexemeOne[i].ToString()));
-                                }
-                                return graphemes;
-                            }
-                            currentRealization.letters = letters(currentRealization);
-                            if (currentClause.realizations == null)
-                            {
-                                currentClause.realizations = new List<Realization>();
-                            }
-                            currentClause.realizations.Add(currentRealization);
-                        }
-                        if (currentText.clauses == null)
-                        {
-                            currentText.clauses = new List<Clause>();
-                        }
-                        currentText.clauses.Add(currentClause);
-                        if (codexMarianus.texts == null)
-                        {
-                            codexMarianus.texts = new List<Text>();
-                            codexMarianus.texts.Add(currentText);
-                        }
-                        else
-                        {
-                            if (codexMarianus.texts.Where((text) => text.textID == currentText.textID.ToString()).Count() > 0)
-                            {
-                                int index = codexMarianus.texts.FindIndex((text) => text.textID == currentText.textID);
-                                codexMarianus.texts[index] = currentText;
-                            }
-                            else
-                            {
-                                codexMarianus.texts.Add(currentText);
-                            }
-                        }
-                        progressBar1.PerformStep();
-                    }
-                    catch
-                    {
-                        continue;
-                    }                    
-                }
-
-                JsonSerializer serializer = new JsonSerializer();
-                serializer.Converters.Add(new Newtonsoft.Json.Converters.JavaScriptDateTimeConverter());
-                serializer.NullValueHandling = NullValueHandling.Ignore;
-                serializer.TypeNameHandling = TypeNameHandling.Auto;
-                serializer.Formatting = Formatting.Indented;
-
-                using (StreamWriter sw = new StreamWriter(Path.Combine(folderPath, "Codex_Marianus.json")))
-                using (JsonWriter writer = new JsonTextWriter(sw))
-                {
-                    serializer.Serialize(writer, codexMarianus, typeof(Document));
-                }
-                MessageBox.Show("Файл обработан!", "Сообщение системы", MessageBoxButtons.OK);
-            }
-        }
 
         private void Button3_Click(object sender, EventArgs e)
         {
-            var choice = openFileDialog1.ShowDialog();
-            if (choice == DialogResult.OK)
+            bool res = false;
+            string train_path = "";
+            do
             {
-                string filePath = openFileDialog1.FileName;
-                Document codexMarianus = JsonConvert.DeserializeObject<Document>(File.ReadAllText(filePath), new JsonSerializerSettings
+                MessageBox.Show("Укажите тренировочный файл для модели, проводящей частеречную разметку", "Сообщение программы");
+                var train_open_dialogue = new OpenFileDialog();
+                DialogResult train_open_dialogue_result = train_open_dialogue.ShowDialog();
+                if (train_open_dialogue_result == DialogResult.OK)
                 {
-                    TypeNameHandling = TypeNameHandling.Auto,
-                    NullValueHandling = NullValueHandling.Ignore,
-                });
-                List<(string, string)> pairs = new List<(string, string)>();
-                foreach (var text in codexMarianus.texts)
-                {
-                    foreach (var clause in text.clauses)
-                    {
-                        foreach(var realization in clause.realizations)
-                        {
-                            foreach (var fieldGroup in realization.realizationFields)
-                            {
-                                pairs.Add((realization.lexemeOne, fieldGroup["PoS"][0].name));
-                            }
-                        }
-                    }
+                    train_path = train_open_dialogue.FileName;
+                    res = true;
                 }
-                using (StreamWriter w = new StreamWriter(@"C:\Users\user\source\repos\OldSlavonicCorpusPreprocessing\OldSlavonicCorpusPreprocessing\HMM\pos_tagged.txt"))
-                {
-                    foreach (var pair in pairs)
-                    {
-                        w.WriteLine(pair.Item1 + " " + pair.Item2);
-                    }
-                }
-                var processInfo = new ProcessStartInfo("cmd.exe", "/c" + "\"C:\\Users\\user\\source\\repos\\OldSlavonicCorpusPreprocessing\\OldSlavonicCorpusPreprocessing\\HMM\\HMM.bat\"");
-
-                processInfo.CreateNoWindow = true;
-
-                processInfo.UseShellExecute = false;
-
-                processInfo.RedirectStandardError = true;
-                processInfo.RedirectStandardOutput = true;
-
-                var process = Process.Start(processInfo);
-
-                process.Start();
-
-                process.WaitForExit();
-
-                string output = process.StandardOutput.ReadToEnd();
-                string error = process.StandardError.ReadToEnd();
-                if (error != "")
-                {
-                    MessageBox.Show(error, "Ошибка!");
-                }
-                else
-                {
-                    MessageBox.Show(output, "Сообщение программы");
-                }
-                
             }
+            while (!res);
+
+            res = false;
+            string file_path = "";
+            do
+            {
+                MessageBox.Show("Укажите файл с кодом Python, нацеленный на обучение модели, проводящей частеречную разметку", "Сообщение программы");
+                var py_open_dialogue = new OpenFileDialog();
+                DialogResult py_open_dialogue_result = py_open_dialogue.ShowDialog();
+                if (py_open_dialogue_result == DialogResult.OK)
+                {
+                    file_path = py_open_dialogue.FileName;
+                    res = true;
+                }
+            }
+            while (!res);
+
+            MessageBox.Show("Начато обучение НММ-модели.", "Сообщение программы");
+            string command = "python " + file_path + " --data " + train_path;
+            var processInfo = new ProcessStartInfo("cmd.exe", "/c " + command);
+            processInfo.CreateNoWindow = true;
+            processInfo.UseShellExecute = false;
+            processInfo.RedirectStandardError = true;
+            processInfo.RedirectStandardOutput = true;
+            var process = Process.Start(processInfo);
+            process.WaitForExit();
+            process.Close();
+            MessageBox.Show("НММ-модель обучена и сохранена в директории Python-файла. Идёт обучение n-gram-модели.", "Сообщение программы");
+
+
+            command = "python " + file_path + " --data " + train_path + " --method grams";
+            processInfo = new ProcessStartInfo("cmd.exe", "/c " + command);
+            processInfo.CreateNoWindow = true;
+            processInfo.UseShellExecute = false;
+            processInfo.RedirectStandardError = true;
+            processInfo.RedirectStandardOutput = true;
+            process = Process.Start(processInfo);
+            process.WaitForExit();
+            process.Close();
+            MessageBox.Show("N-gram-модель обучена и сохранена в директории Python-файла", "Сообщение программы");
         }
 
         private void Button4_Click(object sender, EventArgs e)
-        {            
-            var choice = openFileDialog1.ShowDialog();
-            if (choice == DialogResult.OK)
+        {
+            bool res = false;
+            string train_path = "";
+            do
             {
-                string filePath = openFileDialog1.FileName;
-                Document codexMarianus = JsonConvert.DeserializeObject<Document>(File.ReadAllText(filePath), new JsonSerializerSettings
+                MessageBox.Show("Укажите тренировочный файл для модели, проводящей лемматизацию", "Сообщение программы");
+                var train_open_dialogue = new OpenFileDialog();
+                DialogResult train_open_dialogue_result = train_open_dialogue.ShowDialog();
+                if (train_open_dialogue_result == DialogResult.OK)
                 {
-                    TypeNameHandling = TypeNameHandling.Auto,
-                    NullValueHandling = NullValueHandling.Ignore,
-                });
-                List<(string, string, string)> triplets = new List<(string, string, string)>();
-                foreach (var text in codexMarianus.texts)
-                {
-                    foreach (var clause in text.clauses)
-                    {
-                        foreach (var realization in clause.realizations)
-                        {
-                            foreach (var fieldGroup in realization.realizationFields)
-                            {
-                                triplets.Add((realization.lexemeOne, fieldGroup["PoS"][0].name, fieldGroup["Lemma"][0].name));
-                            }
-                        }
-                    }
+                    train_path = train_open_dialogue.FileName;
+                    res = true;
                 }
-                using (StreamWriter w = new StreamWriter(@"C:\Users\user\source\repos\OldSlavonicCorpusPreprocessing\OldSlavonicCorpusPreprocessing\Lemmatized\lemmatized.txt"))
-                {
-                    foreach (var triplet in triplets)
-                    {
-                        w.WriteLine(triplet.Item1 + " " + triplet.Item2 + " " + triplet.Item3);
-                    }
-                }
-                var processInfo = new ProcessStartInfo("cmd.exe", "/c" + "\"C:\\Users\\user\\source\\repos\\OldSlavonicCorpusPreprocessing\\OldSlavonicCorpusPreprocessing\\Lemmatized\\lemmatization.bat\"");
-
-                processInfo.CreateNoWindow = true;
-
-                processInfo.UseShellExecute = false;
-
-                processInfo.RedirectStandardError = true;
-                processInfo.RedirectStandardOutput = false;
-
-                var process = Process.Start(processInfo);
-
-                process.WaitForExit();
-
-                MessageBox.Show("Модель получена!", "Сообщение программы");
-
             }
+            while (!res);
+
+            res = false;
+            string file_path = "";
+            do
+            {
+                MessageBox.Show("Укажите файл с кодом Python для обучения лемматизирующей модели", "Сообщение программы");
+                var py_open_dialogue = new OpenFileDialog();
+                DialogResult py_open_dialogue_result = py_open_dialogue.ShowDialog();
+                if (py_open_dialogue_result == DialogResult.OK)
+                {
+                    file_path = py_open_dialogue.FileName;
+                    res = true;
+                }
+            }
+            while (!res);
+
+            string command = "python " + file_path + " --data " + train_path;
+            var processInfo = new ProcessStartInfo("cmd.exe", "/c " + command);
+            processInfo.CreateNoWindow = true;
+            processInfo.UseShellExecute = false;
+            processInfo.RedirectStandardError = true;
+            processInfo.RedirectStandardOutput = true;
+            var process = Process.Start(processInfo);
+            process.WaitForExit();
+            process.Close();
+            MessageBox.Show("Модель обучена и сохранена в директории Python-файла", "Сообщение программы");
         }
     }
 }

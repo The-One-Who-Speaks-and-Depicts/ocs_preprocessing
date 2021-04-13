@@ -47,6 +47,8 @@
             this.button6 = new System.Windows.Forms.Button();
             this.button7 = new System.Windows.Forms.Button();
             this.button4 = new System.Windows.Forms.Button();
+            this.listBox2 = new System.Windows.Forms.ListBox();
+            this.label5 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // button1
@@ -150,7 +152,7 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(569, 369);
+            this.label4.Location = new System.Drawing.Point(569, 447);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(35, 13);
             this.label4.TabIndex = 12;
@@ -158,14 +160,14 @@
             // 
             // textBox2
             // 
-            this.textBox2.Location = new System.Drawing.Point(572, 396);
+            this.textBox2.Location = new System.Drawing.Point(572, 485);
             this.textBox2.Name = "textBox2";
             this.textBox2.Size = new System.Drawing.Size(216, 20);
             this.textBox2.TabIndex = 13;
             // 
             // button5
             // 
-            this.button5.Location = new System.Drawing.Point(572, 453);
+            this.button5.Location = new System.Drawing.Point(572, 535);
             this.button5.Name = "button5";
             this.button5.Size = new System.Drawing.Size(216, 34);
             this.button5.TabIndex = 14;
@@ -207,11 +209,37 @@
             this.button4.UseVisualStyleBackColor = true;
             this.button4.Click += new System.EventHandler(this.Button4_Click);
             // 
+            // listBox2
+            // 
+            this.listBox2.FormattingEnabled = true;
+            this.listBox2.Items.AddRange(new object[] {
+            "Heimatland_1",
+            "Heimatland_2",
+            "Kiev_Folia",
+            "Heimatland_3",
+            "Pannonian_Legends",
+            "Recensions"});
+            this.listBox2.Location = new System.Drawing.Point(572, 394);
+            this.listBox2.Name = "listBox2";
+            this.listBox2.Size = new System.Drawing.Size(216, 30);
+            this.listBox2.TabIndex = 23;
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(572, 362);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(35, 13);
+            this.label5.TabIndex = 24;
+            this.label5.Text = "label5";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(811, 652);
+            this.Controls.Add(this.label5);
+            this.Controls.Add(this.listBox2);
             this.Controls.Add(this.button4);
             this.Controls.Add(this.button7);
             this.Controls.Add(this.button6);
@@ -257,6 +285,7 @@
         private System.Windows.Forms.Button button6;
         private System.Windows.Forms.Button button7;
         private System.Windows.Forms.Button button4;
+        private System.Windows.Forms.ListBox listBox2;
+        private System.Windows.Forms.Label label5;
     }
 }
-

@@ -20,7 +20,7 @@ namespace OldSlavonicCorpusPreprocessing
 {
     public partial class Form1 : Form
     {
-        string[] processing_text;
+        string processing_text;
         bool text_is_edited = false;
         bool text_is_preprocessed = false;
         bool text_is_tokenized = false;
@@ -28,15 +28,17 @@ namespace OldSlavonicCorpusPreprocessing
         public Form1()
         {
             InitializeComponent();
+            listBox2.SetSelected(0, true);
             button1.Text = "Загрузить текст со страницы";
             label1.Text = "Источник";
             label2.Text = "Оригинальный текст";
             label3.Text = "Обработанный текст\nдля дальнейшего редактирования";
             label4.Text = "Введите название текста";
+            label5.Text = "Укажите период создания текста:";
             button2.Text = "Выделить текст источника и метаданные";
             button3.Text = "ASCII => Unicode";
             button4.Text = "Разбить текст по знакам пунктуации";
-            button7.Text = "Токенизировать текст";            
+            button7.Text = "Токенизировать текст";
             button5.Text = "Занести текст в базу";
             button6.Text = "Соединить текст";
         }
@@ -44,9 +46,8 @@ namespace OldSlavonicCorpusPreprocessing
         private void Button1_Click(object sender, EventArgs e)
         {
             string input = GetCode(textBox1.Text);
-            processing_text = StringArrayRetrieval(input);
-            richTextBox1.Text += input;            
-            richTextBox1.ReadOnly = true;
+            richTextBox1.Text += input;
+            processing_text = input;
             MessageBox.Show("Текст загружен", "Сообщение программы");
         }
 
@@ -96,49 +97,47 @@ namespace OldSlavonicCorpusPreprocessing
                 Form3 emptyLinkDialog = new Form3();
                 emptyLinkDialog.ShowDialog();
                 emptyLinkDialog.Dispose();
-                
-            }            
+
+            }
             return data;
         }
 
         private void Button2_Click(object sender, EventArgs e)
-        {            
+        {
+            processing_text = richTextBox1.Text;
             if (processing_text != null)
             {
                 progressBar1.Minimum = 1;
                 progressBar1.Maximum = processing_text.Length - 1;
                 progressBar1.Value = 1;
                 progressBar1.Step = 1;
-                for (int i = 0; i < processing_text.Length; i++)
+                string pattern_pre = @"<pre.*>(.*\n)*<\/pre>";
+                foreach (Match match in Regex.Matches(processing_text, pattern_pre, RegexOptions.IgnoreCase))
                 {
-                    string pattern_pre = @"<pre>";
-                    foreach (Match match in Regex.Matches(processing_text[i], pattern_pre, RegexOptions.IgnoreCase))
-                    {
-                        string output = Regex.Replace(processing_text[i], @"<.*?>", "");
-                        output = Regex.Replace(output, @"[0-9]{4,7}\s", "");
-                        output = Regex.Replace(output, @"&amp;", "&");
-                        richTextBox2.Text += output;
-                        richTextBox2.Text += "\n";
-                    }
-                    string pattern_num = @"^[0-9]{4,7}";
-                    foreach (Match match in Regex.Matches(processing_text[i], pattern_num, RegexOptions.IgnoreCase))
-                    {
-                        string output = Regex.Replace(processing_text[i], @"<.*?>", "");
-                        output = Regex.Replace(output, @"&amp;", "&");
-                        output = Regex.Replace(output, @"^[0-9]{4,7}\s", "");
-                        richTextBox2.Text += output;
-                        richTextBox2.Text += "\n";
-                    }
-                    string pattern_percent = @"^%{4,7}"; // needs testing on codex supraslensis
-                    foreach (Match match in Regex.Matches(processing_text[i], pattern_percent, RegexOptions.IgnoreCase))
-                    {
-                        string output = Regex.Replace(processing_text[i], @"<.*?>", "");
-                        output = Regex.Replace(output, @"&amp;", "&");
-                        richTextBox2.Text += output;
-                        richTextBox2.Text += "\n";
-                    }
-                    progressBar1.PerformStep();
+                    string output = Regex.Replace(processing_text, @"<.*?>", "");
+                    output = Regex.Replace(output, @"[0-9]{4,7}\s", "");
+                    output = Regex.Replace(output, @"&amp;", "&");
+                    richTextBox2.Text += output;
+                    richTextBox2.Text += "\n";
                 }
+                string pattern_num = @"^[0-9]{4,7}";
+                foreach (Match match in Regex.Matches(processing_text, pattern_num, RegexOptions.IgnoreCase))
+                {
+                    string output = Regex.Replace(processing_text, @"<.*?>", "");
+                    output = Regex.Replace(output, @"&amp;", "&");
+                    output = Regex.Replace(output, @"^[0-9]{4,7}\s", "");
+                    richTextBox2.Text += output;
+                    richTextBox2.Text += "\n";
+                }
+                string pattern_percent = @"^%{4,7}"; // needs testing on codex supraslensis
+                foreach (Match match in Regex.Matches(processing_text, pattern_percent, RegexOptions.IgnoreCase))
+                {
+                    string output = Regex.Replace(processing_text, @"<.*?>", "");
+                    output = Regex.Replace(output, @"&amp;", "&");
+                    richTextBox2.Text += output;
+                    richTextBox2.Text += "\n";
+                }
+                progressBar1.PerformStep();
                 MessageBox.Show("Предварительная обработка текста завершена", "Сообщение программы");
             }
             else
@@ -148,10 +147,10 @@ namespace OldSlavonicCorpusPreprocessing
                 textAbsentDialog.Dispose();
 
             }
-            
+
         }
 
-        private void Button3_Click(object sender, EventArgs e) 
+        private void Button3_Click(object sender, EventArgs e)
         {
             if (!listBox1.GetSelected(1) && !listBox1.GetSelected(0))
             {
@@ -166,7 +165,7 @@ namespace OldSlavonicCorpusPreprocessing
                 progressBar1.Step = 1;
                 string output = richTextBox2.Text;
                 richTextBox2.ResetText();
-                               
+
 
                 output = Regex.Replace(output, @"\*<~>", "<~>*");
                 output = Regex.Replace(output, @"\*\(\(\(", "(((*");
@@ -354,151 +353,204 @@ namespace OldSlavonicCorpusPreprocessing
                 progressBar1.PerformStep();
                 MessageBox.Show("Кодировка текста изменена", "Сообщение программы");
                 text_is_edited = true;
-            }            
+            }
         }
 
-        
+
 
         private void Button5_Click(object sender, EventArgs e)
         {
             if (text_is_ready)
             {
-                var choice = folderBrowserDialog1.ShowDialog();
-                if (choice == DialogResult.OK)
+                bool res = false;
+                do
                 {
-                    string folderPath = folderBrowserDialog1.SelectedPath;
-                    Document serializedDoc = new Document(new DirectoryInfo(folderPath).GetFiles().Length.ToString(), textBox2.Text,
-                        new DirectoryInfo(folderPath).GetFiles().Length.ToString() + "_" + textBox2.Text, "_");
-                    var units = Regex.Split(richTextBox2.Text, "\n");
-                    progressBar1.Minimum = 0;
-                    progressBar1.Value = 0;
-                    progressBar1.Step = 1;
-                    progressBar1.Maximum = units.Length;
-                    Text currentText = new Text(serializedDoc, "0", serializedDoc.documentName);
-                    for (int i = 0; i < units.Length; i++)
+                    MessageBox.Show("Укажите папку, в которой размещается корпус", "Сообщение программы");
+                    var choice = folderBrowserDialog1.ShowDialog();
+                    if (choice == DialogResult.OK)
                     {
-                        try
-                        {                            
-                            Clause currentClause = new Clause(currentText, i.ToString(), units[i]);
-                            var lexemes = currentClause.clauseText.Split(' ');
-                            for (int j = 0; j < lexemes.Length; j++)
-                            {
-                                if (lexemes[j].StartsWith("!"))
-                                {
-                                    lexemes[j] = "~" + lexemes[j] + "~";
-                                }
-                                Realization currentRealization = new Realization(currentClause, j.ToString(), lexemes[j], Regex.Replace(lexemes[j], @"[\[\]\?\-\'\`\^\~\(\)\!]", ""));
-                                if (currentRealization.realizationFields == null)
-                                {
-                                    currentRealization.realizationFields = new List<Dictionary<string, List<IValue>>>();
-                                }
-                                currentRealization.realizationFields.Add(new Dictionary<string, List<IValue>>());
-                                string partOfSpeech;
-                                using (StreamWriter w = new StreamWriter(@"C:\Users\user\source\repos\OldSlavonicCorpusPreprocessing\OldSlavonicCorpusPreprocessing\HMM\not_tagged.txt"))
-                                {
-                                    w.WriteLine(currentRealization.lexemeTwo);
-                                }
-                                    var processInfo = new ProcessStartInfo("cmd.exe", "/c" + "\"C:\\Users\\user\\source\\repos\\OldSlavonicCorpusPreprocessing\\OldSlavonicCorpusPreprocessing\\HMM\\hmm_predict.bat\"");
-
-                                    processInfo.CreateNoWindow = true;
-
-                                    processInfo.UseShellExecute = false;
-
-                                    processInfo.RedirectStandardError = true;
-                                    processInfo.RedirectStandardOutput = true;
-
-                                    var process = Process.Start(processInfo);
-
-                                    process.Start();
-
-                                    process.WaitForExit();
-
-                                    using (StreamReader r = new StreamReader(@"C:\Users\user\source\repos\OldSlavonicCorpusPreprocessing\OldSlavonicCorpusPreprocessing\HMM\" + "result.txt"))
-                                    {
-                                        partOfSpeech = r.ReadLine().Split(' ')[1];
-                                    }
-                                File.Delete(@"C:\Users\user\source\repos\OldSlavonicCorpusPreprocessing\OldSlavonicCorpusPreprocessing\HMM\" + "not_tagged.txt");
-                                File.Delete(@"C:\Users\user\source\repos\OldSlavonicCorpusPreprocessing\OldSlavonicCorpusPreprocessing\HMM\" + "result.txt");
-                                List<IValue> posList = new List<IValue>();
-                                posList.Add(new SimpleValue(partOfSpeech));
-                                currentRealization.realizationFields[0].Add("PoS", posList);
-                                // here lemmatization is being implemented
-                                string lemma;
-                                using (StreamWriter w = new StreamWriter(@"C:\Users\user\source\repos\OldSlavonicCorpusPreprocessing\OldSlavonicCorpusPreprocessing\Lemmatized\not_lemmatized.txt"))
-                                {
-                                    w.WriteLine(currentRealization.lexemeTwo + " " + partOfSpeech);
-                                }
-                                /*
-                                processInfo = new ProcessStartInfo("cmd.exe", "/c" + "\"C:\\Users\\user\\source\\repos\\OldSlavonicCorpusPreprocessing\\OldSlavonicCorpusPreprocessing\\Lemmatizer\\lemmatization_predict.bat\"");
-
-                                processInfo.CreateNoWindow = true;
-
-                                processInfo.UseShellExecute = false;
-
-                                processInfo.RedirectStandardError = true;
-                                processInfo.RedirectStandardOutput = true;
-
-                                process = Process.Start(processInfo);
-
-                                process.WaitForExit();
-
-                                using (StreamReader r = new StreamReader(@"C:\Users\user\source\repos\OldSlavonicCorpusPreprocessing\OldSlavonicCorpusPreprocessing\HMM\" + "result.txt"))
-                                {
-                                    partOfSpeech = r.ReadLine().Split(' ')[1];
-                                }
-                                */
-                                List<Grapheme> letters(Realization word)
-                                {
-                                    List<Grapheme> graphemes = new List<Grapheme>();
-                                    for (int k = 0; k < word.lexemeOne.Length; k++)
-                                    {
-                                        graphemes.Add(new Grapheme(currentRealization, k.ToString(), word.lexemeOne[k].ToString()));
-                                    }
-                                    return graphemes;
-                                }
-                                currentRealization.letters = letters(currentRealization);
-                                if (currentClause.realizations == null)
-                                {
-                                    currentClause.realizations = new List<Realization>();
-                                }
-                                currentClause.realizations.Add(currentRealization);
-                            }
-                            if (currentText.clauses == null)
-                            {
-                                currentText.clauses = new List<Clause>();
-                            }
-                            currentText.clauses.Add(currentClause);
-                            serializedDoc.texts.Add(currentText);
-                            progressBar1.PerformStep();
-                        }
-                        catch
+                        string folderPath = folderBrowserDialog1.SelectedPath;
+                        Document serializedDoc = new Document(new DirectoryInfo(folderPath).GetFiles().Length.ToString(), textBox2.Text,
+                            new DirectoryInfo(folderPath).GetFiles().Length.ToString() + "_" + textBox2.Text, "_");
+                        var units = Regex.Split(richTextBox2.Text, "\n");
+                        progressBar1.Minimum = 0;
+                        progressBar1.Value = 0;
+                        progressBar1.Step = 1;
+                        progressBar1.Maximum = units.Length;
+                        Text currentText = new Text(serializedDoc, "0", serializedDoc.documentName);
+                        for (int i = 0; i < units.Length; i++)
                         {
-                            continue;
+                            try
+                            {
+                                Clause currentClause = new Clause(currentText, i.ToString(), units[i]);
+                                var lexemes = currentClause.clauseText.Split(' ');
+                                for (int j = 0; j < lexemes.Length; j++)
+                                {
+                                    Realization currentRealization;
+                                    if (lexemes[j].StartsWith("!"))
+                                    {
+                                        if (Regex.Match(lexemes[j], @"[!]{1}[Ц|ц|W|w|Ѱ|ѱ|Х|х|Ф|ф|Ѹ|ѹ|У|у|Т|т|С|с|Р|р]{0,1}[Ч|ч|П|п|О|о|Ѯ|ѯ|Н|н|М|м|Л|л|К|к|I|i|И|и]{0,1}[Ѳ|ѳ|И|и|З|з|Е|е|Д|д|Г|г|В|в|Б|б|А|а]{0,1}$").Success)
+                                        {
+                                            currentRealization = new Realization(currentClause, j.ToString(), lexemes[j], "~" + Regex.Replace(lexemes[j], @"[\[\]\?\-\'\`\^\~\(\)\!\\]", "") + "~");
+                                        }
+                                        else
+                                        {
+                                            currentRealization = new Realization(currentClause, j.ToString(), lexemes[j], "~" + Regex.Replace(lexemes[j], @"[\[\]\?\-\'\`\^\~\(\)\!\\]", ""));
+                                        }
+
+                                    }
+                                    else
+                                    {
+                                        currentRealization = new Realization(currentClause, j.ToString(), lexemes[j], Regex.Replace(lexemes[j], @"[\[\]\?\-\'\`\^\~\(\)\!\\]", ""));
+                                    }
+                                    if (currentRealization.realizationFields == null)
+                                    {
+                                        currentRealization.realizationFields = new List<Dictionary<string, List<IValue>>>();
+                                    }
+                                    currentRealization.realizationFields.Add(new Dictionary<string, List<IValue>>());
+                                    List<Grapheme> letters(Realization word)
+                                    {
+                                        List<Grapheme> graphemes = new List<Grapheme>();
+                                        for (int k = 0; k < word.lexemeOne.Length; k++)
+                                        {
+                                            graphemes.Add(new Grapheme(currentRealization, k.ToString(), word.lexemeOne[k].ToString()));
+                                        }
+                                        return graphemes;
+                                    }
+                                    currentRealization.letters = letters(currentRealization);
+                                    if (currentClause.realizations == null)
+                                    {
+                                        currentClause.realizations = new List<Realization>();
+                                    }
+                                    currentClause.realizations.Add(currentRealization);
+                                }
+                                if (currentText.clauses == null)
+                                {
+                                    currentText.clauses = new List<Clause>();
+                                }
+                                currentText.clauses.Add(currentClause);
+
+                                progressBar1.PerformStep();
+                            }
+                            catch (Exception r)
+                            {
+                                if (r is IOException)
+                                {
+                                    Console.WriteLine(r.Message);
+                                }
+                                continue;
+                            }
                         }
-                    }
+                        serializedDoc.texts.Add(currentText);
 
-                    JsonSerializer serializer = new JsonSerializer();
-                    serializer.Converters.Add(new Newtonsoft.Json.Converters.JavaScriptDateTimeConverter());
-                    serializer.NullValueHandling = NullValueHandling.Ignore;
-                    serializer.TypeNameHandling = TypeNameHandling.Auto;
-                    serializer.Formatting = Formatting.Indented;
+                        using (StreamWriter sw = new StreamWriter(Path.Combine(folderPath, serializedDoc.documentName + ".json")))
+                        {
+                            sw.Write(serializedDoc.Jsonize());
+                        }
 
-                    using (StreamWriter sw = new StreamWriter(Path.Combine(folderPath, serializedDoc.documentName + ".json")))
-                    using (JsonWriter writer = new JsonTextWriter(sw))
-                    {
-                        serializer.Serialize(writer, serializedDoc, typeof(Document));
+
+                        DialogResult dialogResult = MessageBox.Show("Требуются ли частеречная разметка и лемматизация?", "Сообщение программы", MessageBoxButtons.YesNo);
+                        if (dialogResult == DialogResult.Yes)
+                        {
+                            SimpleValue period = new SimpleValue(listBox2.Text);
+                            List<IValue> periodFieldValues = new List<IValue>();
+                            periodFieldValues.Add(period);
+                            SimpleValue tagged = new SimpleValue("Automatically_tagged");
+                            List<IValue> taggedFieldValues = new List<IValue>();
+                            taggedFieldValues.Add(tagged);
+                            Dictionary<string, List<IValue>> fields = new Dictionary<string, List<IValue>>();
+                            fields.Add("Period", periodFieldValues);
+                            fields.Add("Tagged", taggedFieldValues);
+                            serializedDoc.documentMetaData.Add(fields);
+                            using (StreamWriter sw = new StreamWriter(Path.Combine(folderPath, serializedDoc.documentName + ".json")))
+                            {
+                                sw.Write(serializedDoc.Jsonize());
+                            }
+                            res = false;
+                            string model_path = "";
+                            do
+                            {
+                                MessageBox.Show("Укажите папку с моделью, обученной для частеречной разметки и файлом Python", "Сообщение системы", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                                FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog();
+                                DialogResult result = folderBrowserDialog.ShowDialog();
+                                if (result == DialogResult.OK)
+                                {
+                                    res = true;
+                                    model_path = folderBrowserDialog.SelectedPath;
+                                }
+                            }
+                            while (!res);
+
+                            string command = "python " + Path.Combine(model_path, "main.py") + " --data " + Path.Combine(folderPath, serializedDoc.documentName + ".json") + " --modus prediction --folder " + model_path;
+                            var processInfo = new ProcessStartInfo("cmd.exe", "/c " + command);
+                            processInfo.CreateNoWindow = true;
+                            processInfo.UseShellExecute = false;
+                            processInfo.RedirectStandardError = true;
+                            processInfo.RedirectStandardOutput = true;
+                            var process = Process.Start(processInfo);
+                            process.WaitForExit();
+                            process.Close();
+
+                            res = false;
+                            model_path = "";
+                            do
+                            {
+                                MessageBox.Show("Укажите папку с моделью, обученной для лемматизации и файлом Python", "Сообщение системы", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                                FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog();
+                                DialogResult result = folderBrowserDialog.ShowDialog();
+                                if (result == DialogResult.OK)
+                                {
+                                    res = true;
+                                    model_path = folderBrowserDialog.SelectedPath;
+                                }
+                            }
+                            while (!res);
+                            command = "python " + Path.Combine(model_path, "main.py") + " --data " + Path.Combine(folderPath, serializedDoc.documentName + ".json") + " --modus prediction --folder " + model_path;
+                            processInfo = new ProcessStartInfo("cmd.exe", "/c " + command);
+                            processInfo.CreateNoWindow = true;
+                            processInfo.UseShellExecute = false;
+                            processInfo.RedirectStandardError = true;
+                            processInfo.RedirectStandardOutput = true;
+                            process = Process.Start(processInfo);
+                            process.WaitForExit();
+                            process.Close();
+                            MessageBox.Show("Частеречная разметка и лемматизация проведены для текста", "Сообщение системы");
+                            res = true;
+                        }
+                        else if (dialogResult == DialogResult.No)
+                        {
+                            SimpleValue period = new SimpleValue(listBox2.Text);
+                            List<IValue> periodFieldValues = new List<IValue>();
+                            periodFieldValues.Add(period);
+                            SimpleValue tagged = new SimpleValue("Not_tagged");
+                            List<IValue> taggedFieldValues = new List<IValue>();
+                            taggedFieldValues.Add(tagged);
+                            Dictionary<string, List<IValue>> fields = new Dictionary<string, List<IValue>>();
+                            fields.Add("Period", periodFieldValues);
+                            fields.Add("Tagged", taggedFieldValues);
+                            serializedDoc.documentMetaData.Add(fields);
+                            using (StreamWriter sw = new StreamWriter(Path.Combine(folderPath, serializedDoc.documentName + ".json")))
+                            {
+                                sw.Write(serializedDoc.Jsonize());
+                            }
+                            MessageBox.Show("Частеречная разметка и лемматизация не проведены для текста", "Сообщение системы");
+                            res = true;
+                        }
+                        res = true;
                     }
+                    res = true;
+                    MessageBox.Show("Текст занесён в базу данных", "Сообщение системы", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
-                MessageBox.Show("Текст занесён в базу данных", "Сообщение системы", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                while (!res);
             }
             else
             {
                 MessageBox.Show("Прежде чем заносить текст в базу данных, нужно разбить его по знакам пунктуации", "Сообщение программы", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-            
+
         }
 
-        
+
 
         private void Button6_Click(object sender, EventArgs e)
         {
@@ -531,14 +583,14 @@ namespace OldSlavonicCorpusPreprocessing
                 richTextBox2.Text = editedText;
                 MessageBox.Show("Форматирование завершено", "Сообщение программы", MessageBoxButtons.OK);
                 text_is_preprocessed = true;
-            }            
+            }
         }
 
         private void Button7_Click(object sender, EventArgs e)
         {
             if (!text_is_preprocessed)
             {
-                MessageBox.Show("Прежде чем токенизировать текст, выполните предобработку", "Сообщение программы", MessageBoxButtons.OK, MessageBoxIcon.Warning);                
+                MessageBox.Show("Прежде чем токенизировать текст, выполните предобработку", "Сообщение программы", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
             else
             {
@@ -563,7 +615,7 @@ namespace OldSlavonicCorpusPreprocessing
                                     if (!String.IsNullOrWhiteSpace(word) && !String.IsNullOrEmpty(word))
                                     {
                                         tokenizedText.Add(new_word);
-                                    }                                        
+                                    }
                                 }
                             }
                             else
@@ -593,13 +645,13 @@ namespace OldSlavonicCorpusPreprocessing
                     finally
                     {
                         progressBar1.PerformStep();
-                    }                                        
+                    }
                 }
-                
+
                 foreach (var word in tokenizedText)
                 {
                     richTextBox2.AppendText(word + " ");
-                    
+
                 }
                 MessageBox.Show("Токенизация завершена", "Сообщение программы", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 text_is_tokenized = true;
@@ -615,7 +667,7 @@ namespace OldSlavonicCorpusPreprocessing
                 foreach (var word in wordArray)
                 {
                     if (Regex.IsMatch(word, @"(\.|:\.|\.:\.|:\.\.\.:|\.,\.|∽|,|:\.:|: \.|: -|:-|::|:)"))
-                    {                        
+                    {
                         richTextBox2.AppendText(word + "\n");
                     }
                     else
@@ -630,7 +682,7 @@ namespace OldSlavonicCorpusPreprocessing
             {
                 MessageBox.Show("Токенизация не завершена!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-            
+
         }
     }
 }

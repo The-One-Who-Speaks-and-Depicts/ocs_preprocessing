@@ -15,6 +15,9 @@ namespace OldSlavonicCorpusPreprocessing
         public StartWindow()
         {
             InitializeComponent();
+            Text = "Начальное окно";
+            button1.Text = "Создать новый документ в корпусе";
+            button2.Text = "Обучить модель на CoNLL-U данных";
         }
 
         private void Button1_Click(object sender, EventArgs e)
