@@ -2,7 +2,7 @@
 
 This tool, built with Windows Forms, enables a researcher to train HMM taggers and lemmatizers, as well as scrape texts from TITUS and CCMH, tokenize, preprocess, and tag them.
 
-// Add a picture here
+![Start window](pics/start.png)
 
 ## Requirements
 
@@ -20,13 +20,13 @@ This tool, built with Windows Forms, enables a researcher to train HMM taggers a
 
 ### Training
 
-// Add a picture here
+![Training window](pics/train.png)
 
 If one wants to train their own models for PoS tagging / lemmatisation, one should use "Обучить модель на CoNLL-U данных" option, where the upper button is for PoS tagging (may be implemented via HMM PoS Tagger), and the lower is for lemmatisation (may be implemented via Lemmatiser higher).
 
 ### Using
 
-// Add a picture here
+![Main window](pics/workflow.png)
 
 If one wants to scrape CCMH/TITUS data, one should use "Создать новый документ в корпусе" window. 
 
